@@ -2,28 +2,31 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+# Prevent Python from writing .pyc files and enable buffering
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/app
 
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Copia requirements a partir da raiz do repositório
-COPY backend/requirements.txt ./requirements.txt
-
+# Copy requirements
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copia apenas o backend
-COPY backend/app ./app
+# Copy all backend code (app, core, services, repositories, etc.)
+COPY . .
 
-# Se houver outros arquivos do backend necessários, copie também
-# Exemplo:
-# COPY backend/alembic.ini ./alembic.ini
-# COPY backend/alembic ./alembic
+# Ensure data directory exists
+RUN mkdir -p /app/data
 
-RUN mkdir -p /app/data /app/logs
+# Default database URL
+ENV DATABASE_URL=data/app.db
 
+# Expose port
 EXPOSE 8000
 
+# Command to run the application
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
