@@ -2,27 +2,28 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install system dependencies
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
 RUN apt-get update && apt-get install -y \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements
-COPY requirements.txt .
+# Copia requirements a partir da raiz do repositório
+COPY backend/requirements.txt ./requirements.txt
+
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
-COPY . .
+# Copia apenas o backend
+COPY backend/app ./app
 
-# Create data directory for SQLite
-RUN mkdir -p data
+# Se houver outros arquivos do backend necessários, copie também
+# Exemplo:
+# COPY backend/alembic.ini ./alembic.ini
+# COPY backend/alembic ./alembic
 
-# Set environment variables
-ENV PYTHONUNBUFFERED=1
-ENV DATABASE_URL=data/app.db
+RUN mkdir -p /app/data /app/logs
 
-# Expose port
 EXPOSE 8000
 
-# Command to run the application
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
