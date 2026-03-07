@@ -1,0 +1,77 @@
+{
+    "target_language": "en",
+    "level": "A1",
+    "description": "Beginner level focused on basic communication.",
+    "lessons": [
+        {
+            "lesson_id": "en_a1_01",
+            "title": "Greetings and Introductions",
+            "objective": "Learn how to greet people and introduce yourself.",
+            "target_vocab": ["Hello", "Hi", "My name is", "Nice to meet you", "Goodbye"],
+            "target_grammar": ["Verb 'to be' (I am, You are)", "Basic sentence structure"],
+            "script_steps": [
+                "Greet the student and ask their name.",
+                "Teach 'Hello, my name is...'.",
+                "Practice introductions.",
+                "Teach 'Nice to meet you'.",
+                "Roleplay a short meeting.",
+                "Say goodbye."
+            ]
+        },
+        {
+            "lesson_id": "en_a1_02",
+            "title": "Numbers and Age",
+            "objective": "Learn to count to 20 and ask/tell age.",
+            "target_vocab": ["One", "Two", "Three", "Ten", "Twenty", "Old", "Years"],
+            "target_grammar": ["How old are you?", "I am X years old"],
+            "script_steps": [
+                "Review numbers 1-10.",
+                "Teach numbers 11-20.",
+                "Ask 'How old are you?'.",
+                "Practice answering 'I am...'.",
+                "Quiz the student on random numbers."
+            ]
+        },
+        {
+            "lesson_id": "en_a1_03",
+            "title": "Ordering Food",
+            "objective": "Learn to order food in a restaurant.",
+            "target_vocab": ["Menu", "Please", "Water", "Coffee", "Sandwich", "Bill"],
+            "target_grammar": ["I would like...", "Can I have...?"],
+            "script_steps": [
+                "Introduce restaurant vocabulary.",
+                "Teach specific phrases for ordering.",
+                "Simulate looking at a menu.",
+                "Roleplay ordering a drink and food.",
+                "Ask for the bill."
+            ]
+        },
+        {
+            "lesson_id": "en_a1_04",
+            "title": "Asking for Directions",
+            "objective": "Learn to ask where places are.",
+            "target_vocab": ["Where", "Left", "Right", "Straight", "Street", "Station"],
+            "target_grammar": ["Excuse me, where is...?", "Turn left/right"],
+            "script_steps": [
+                "Teach directional words (left, right, straight).",
+                "Practice 'Where is the...?'",
+                "give simple directions.",
+                "Roleplay a tourist asking for help."
+            ]
+        },
+        {
+            "lesson_id": "en_a1_05",
+            "title": "Daily Routine",
+            "objective": "Talk about daily activities.",
+            "target_vocab": ["Wake up", "Breakfast", "Work", "School", "Dinner", "Sleep"],
+            "target_grammar": ["Present Simple (I words...)", "Time (at 7 o'clock)"],
+            "script_steps": [
+                "Introduce morning verb phrases.",
+                "Introduce evening verb phrases.",
+                "Teach telling time simply.",
+                "Describe a typical day.",
+                "Ask student about their day."
+            ]
+        }
+    ]
+}

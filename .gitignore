@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+.env
+
+# Database
+data/*.db
+agent.db
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local development files
+create_layout_v13.py
+migrate_v13_v2.py
+reorganize_project.py
+check_db_v13.py
+relatorio_*.md
+backups/
+*.mp3
+test_result.txt

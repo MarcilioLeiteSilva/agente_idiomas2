@@ -1,0 +1,35 @@
+services:
+  backend:
+    build: ./backend
+    container_name: agente-idiomas-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+    env_file:
+      - ./backend/.env
+    environment:
+      - DATABASE_URL=data/app.db
+    restart: always
+
+  frontend:
+    build: ./frontend
+    container_name: agente-idiomas-app
+    ports:
+      - "80:80"
+    restart: always
+
+  nginx:
+    image: nginx:alpine
+    container_name: agente-idiomas-proxy
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - backend
+      - frontend
+    restart: always
+
+volumes:
+  data:
