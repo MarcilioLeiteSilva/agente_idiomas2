@@ -14,7 +14,12 @@ if (!isLocal && host.includes("-frontend.")) {
 console.warn(`[AGENTE IDIOMAS] API_BASE vinculada: ${API_BASE}`);
 
 export async function apiCall(endpoint, method = "GET", body = null) {
+    const token = localStorage.getItem("access_token");
     const headers = {};
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+    }
+
     const config = { method, headers };
 
     if (!(body instanceof FormData)) {

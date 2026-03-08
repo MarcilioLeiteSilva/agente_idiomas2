@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -46,8 +47,15 @@
         }
 
         @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
         }
 
         .blob {
@@ -108,6 +116,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <nav>
@@ -115,8 +124,8 @@
             <a href="#" class="logo">Agente<span class="gradient-text">Idiomas</span></a>
             <div class="nav-links">
                 <a href="#features" style="color: var(--text-muted); text-decoration: none;">Recursos</a>
-                <a href="/login" class="btn btn-outline">Entrar</a>
-                <a href="/register" class="btn btn-primary">Começar Grátis</a>
+                <a href="auth.html" style="color: var(--text-muted); text-decoration: none;">Entrar</a>
+                <a href="auth.html" class="btn btn-primary">Começar Grátis</a>
             </div>
         </div>
     </nav>
@@ -125,10 +134,13 @@
         <div class="blob"></div>
         <div class="hero-content">
             <h1>Aprenda <span class="gradient-text">Conversando</span> com o Futuro</h1>
-            <p>O Agente Idiomas usa Inteligência Artificial avançada para simular conversas reais, dar feedback imediato e acelerar sua fluência em tempo recorde.</p>
+            <p>O Agente Idiomas usa Inteligência Artificial avançada para simular conversas reais, dar feedback imediato
+                e acelerar sua fluência em tempo recorde.</p>
             <div style="display: flex; gap: 16px;">
-                <a href="/register" class="btn btn-primary" style="padding: 16px 32px; font-size: 1.1rem;">Explorar Trilhas</a>
-                <a href="#features" class="btn btn-outline" style="padding: 16px 32px; font-size: 1.1rem;">Ver Demonstração</a>
+                <a href="auth.html" class="btn btn-primary" style="padding: 16px 32px; font-size: 1.1rem;">Explorar
+                    Trilhas</a>
+                <a href="#features" class="btn btn-outline" style="padding: 16px 32px; font-size: 1.1rem;">Ver
+                    Demonstração</a>
             </div>
         </div>
         <div class="hero-image">
@@ -137,7 +149,8 @@
     </header>
 
     <section id="features" class="container">
-        <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 60px;">Por que o Agente <span class="gradient-text">Idiomas</span>?</h2>
+        <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 60px;">Por que o Agente <span
+                class="gradient-text">Idiomas</span>?</h2>
         <div class="features">
             <div class="feature-card glass">
                 <h3>Feedback em Tempo Real</h3>
@@ -159,4 +172,5 @@
     </footer>
 
 </body>
+
 </html>

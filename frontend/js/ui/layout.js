@@ -18,12 +18,13 @@ export function renderLayout() {
                     <li data-page="interpreter" class="nav-item">🌐 Intérprete</li>
                     <li data-page="progress" class="nav-item">📊 Evolução</li>
                     <li data-page="settings" class="nav-item">⚙️ Ajustes</li>
+                    <li id="logoutBtn" class="nav-item" style="margin-top: 20px; color: var(--error);">🚪 Sair</li>
                 </ul>
 
                 <div class="user-footer glass">
                     <div class="user-avatar">👤</div>
                     <div class="user-info">
-                        <span class="user-name">Estudante</span>
+                        <span class="user-name" id="userNameDisplay">Estudante</span>
                         <span class="user-rank">Explorador</span>
                     </div>
                 </div>

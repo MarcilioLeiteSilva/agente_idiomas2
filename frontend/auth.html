@@ -121,7 +121,10 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import { apiCall } from './js/api.js';
+        import { setSessionId, setUserProfile } from './js/state.js';
+
         const form = document.getElementById('authForm');
         const toggleBtn = document.getElementById('toggleBtn');
         const authTitle = document.getElementById('authTitle');
@@ -155,8 +158,37 @@
 
         form.onsubmit = async (e) => {
             e.preventDefault();
-            // Lógica de integração com backend virá no próximo passo
-            alert('Integração com backend em breve!');
+            const email = document.getElementById('emailInput').value;
+            const password = document.getElementById('passwordInput').value;
+            const name = document.getElementById('nameInput').value;
+
+            submitBtn.disabled = true;
+            submitBtn.innerText = isLogin ? 'Entrando...' : 'Criando Conta...';
+
+            try {
+                const endpoint = isLogin ? '/v1/auth/login' : '/v1/auth/register';
+                const body = isLogin ? { email, password } : { email, password, full_name: name };
+
+                const data = await apiCall(endpoint, 'POST', body);
+
+                if (isLogin) {
+                    if (data.access_token) {
+                        localStorage.setItem('access_token', data.access_token);
+                        setSessionId(data.email || email); // Use email as session ID for now
+                        alert('Login realizado com sucesso!');
+                        window.location.href = 'index.html';
+                    }
+                } else {
+                    alert('Conta criada com sucesso! Agora você pode entrar.');
+                    isLogin = true;
+                    toggleBtn.click();
+                }
+            } catch (err) {
+                alert('Erro: ' + err.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = isLogin ? 'Entrar' : 'Criar Conta';
+            }
         };
     </script>
 </body>
