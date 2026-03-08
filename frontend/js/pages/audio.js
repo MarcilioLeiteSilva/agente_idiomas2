@@ -24,6 +24,22 @@ export function mount(parent) {
     container.className = "page-audio";
     container.innerHTML = `
         <div class="max-w-3xl mx-auto space-y-6">
+            <!-- Audio Log FIRST -->
+            <div class="bg-white border border-gray-200 rounded-3xl dark:bg-slate-900 dark:border-gray-700 overflow-hidden shadow-sm">
+                <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                    <h3 class="text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-widest">Transcrição</h3>
+                    <button id="clearAudioLog" class="p-2 text-gray-400 hover:text-red-500 transition-colors">
+                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                    </button>
+                </div>
+                <div id="audioLog" class="p-4 h-[300px] overflow-y-auto space-y-3">
+                     <div class="flex flex-col items-center justify-center h-full text-gray-400 italic">
+                        <p class="text-xs">O histórico da conversa aparecerá aqui.</p>
+                     </div>
+                </div>
+            </div>
+
+            <!-- Voice Orb SECOND -->
             <div class="bg-white border border-gray-200 rounded-3xl p-8 shadow-sm dark:bg-slate-900 dark:border-gray-700 text-center">
                 <div class="mb-8 flex justify-center">
                     <div id="voiceOrb" class="w-32 h-32 bg-blue-600 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(37,99,235,0.4)] transition-all duration-500 scale-100">
@@ -51,10 +67,6 @@ export function mount(parent) {
                 </div>
             </div>
 
-            <div id="audioLog" class="bg-white border border-gray-200 rounded-2xl p-4 h-[300px] overflow-y-auto dark:bg-slate-900 dark:border-gray-700 space-y-3">
-                 <!-- Logs will appear here -->
-            </div>
-            
             <audio id="audioPlayer" class="hidden"></audio>
             
             <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 dark:bg-amber-900/10 dark:border-amber-900/20">
@@ -76,6 +88,10 @@ export function mount(parent) {
     document.getElementById("btnInit").onclick = startSession;
     document.getElementById("btnPause").onclick = togglePause;
     document.getElementById("btnStop").onclick = endSession;
+    document.getElementById("clearAudioLog").onclick = () => {
+        document.getElementById("audioLog").innerHTML = '';
+        showToast("Histórico limpo");
+    };
 }
 
 

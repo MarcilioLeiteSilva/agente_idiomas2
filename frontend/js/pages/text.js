@@ -263,17 +263,15 @@ function appendMsg(role, text, cls) {
     const log = document.getElementById("textLog");
     if (!log) return;
 
-    // Remove empty state message if exists
-    if (log.querySelector('.max-w-\\[85\\%\\]')) {
-        log.innerHTML = '';
-    }
+    // "Quando entra uma mensagem a outra some" -> Clear log before appending
+    log.innerHTML = '';
 
     const div = document.createElement("div");
     const formattedText = text.replace(/\n/g, '<br>');
 
     if (cls === 'me') {
         // Chat Bubble Out (User)
-        div.className = "flex ms-auto gap-x-2 sm:gap-x-4 max-w-[85%] mb-4";
+        div.className = "flex ms-auto gap-x-2 sm:gap-x-4 max-w-[85%] mb-4 animate-in slide-in-from-right-2 duration-300";
         div.innerHTML = `
             <div class="grow text-end space-y-3">
                 <div class="inline-block bg-blue-600 rounded-2xl p-4 shadow-sm">
@@ -286,17 +284,16 @@ function appendMsg(role, text, cls) {
         `;
     } else {
         // Chat Bubble In (Bot)
-        div.className = "flex gap-x-2 sm:gap-x-4 max-w-[85%] mb-4";
+        div.className = "flex gap-x-2 sm:gap-x-4 max-w-[85%] mb-4 animate-in slide-in-from-left-2 duration-300";
         div.innerHTML = `
             <span class="flex-shrink-0 inline-flex items-center justify-center h-[2.375rem] w-[2.375rem] rounded-full bg-blue-600">
                 <span class="text-sm font-medium text-white leading-none">AI</span>
             </span>
-            <div class="bg-white border border-gray-200 rounded-2xl p-4 space-y-3 dark:bg-slate-900 dark:border-gray-700">
+            <div class="bg-white border border-gray-200 rounded-2xl p-4 space-y-3 dark:bg-slate-900 dark:border-gray-700 shadow-sm">
                 <p class="text-sm text-gray-800 dark:text-white">${formattedText}</p>
             </div>
         `;
     }
 
     log.appendChild(div);
-    log.scrollTop = log.scrollHeight;
 }

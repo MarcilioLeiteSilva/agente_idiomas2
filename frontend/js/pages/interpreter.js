@@ -38,7 +38,12 @@ export function mount(parent) {
                     
                     <!-- Side A -->
                     <div class="flex flex-col items-center text-center space-y-4">
-                        <h4 class="text-xs font-bold uppercase tracking-widest text-gray-400">Pessoa A</h4>
+                        <div class="flex items-center gap-2 group w-full justify-center">
+                            <h4 class="text-xs font-bold uppercase tracking-widest text-gray-400">Pessoa A</h4>
+                            <button id="clearResA" class="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-500 transition-all">
+                                <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                            </button>
+                        </div>
                         <div id="resA" class="w-full min-h-[120px] p-4 bg-blue-50/50 rounded-2xl border border-blue-100 text-gray-800 dark:bg-blue-900/10 dark:border-blue-900/20 dark:text-gray-200 italic flex items-center justify-center">
                             Aguardando voz...
                         </div>
@@ -54,7 +59,12 @@ export function mount(parent) {
 
                     <!-- Side B -->
                     <div class="flex flex-col items-center text-center space-y-4">
-                        <h4 class="text-xs font-bold uppercase tracking-widest text-gray-400">Pessoa B</h4>
+                        <div class="flex items-center gap-2 group w-full justify-center">
+                            <h4 class="text-xs font-bold uppercase tracking-widest text-gray-400">Pessoa B</h4>
+                            <button id="clearResB" class="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-500 transition-all">
+                                <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                            </button>
+                        </div>
                         <div id="resB" class="w-full min-h-[120px] p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100 text-gray-800 dark:bg-emerald-900/10 dark:border-emerald-900/20 dark:text-gray-200 italic flex items-center justify-center">
                             Aguardando voz...
                         </div>
@@ -75,6 +85,13 @@ export function mount(parent) {
 
     setupListener("btnTalkA", "btnStopA", "langA", "langB", true);
     setupListener("btnTalkB", "btnStopB", "langB", "langA", false);
+
+    document.getElementById("clearResA").onclick = () => {
+        document.getElementById("resA").innerText = "Aguardando voz...";
+    };
+    document.getElementById("clearResB").onclick = () => {
+        document.getElementById("resB").innerText = "Aguardando voz...";
+    };
 }
 
 export function unmount() {
