@@ -184,7 +184,69 @@ function renderFeedback(fb) {
     showToast(`Score: ${fb.overall_score}`, "info");
 }
 
-// ... rest of logic remains the same (api calls) ...
+async function startLesson(id) {
+    try {
+        const res = await apiCall("/v1/lesson/start", "POST", { user_id: state.sessionId, lesson_id: id });
+        if (res.error) throw new Error(res.error);
+        currentLessonId = id;
+        renderActiveLesson(res);
+    } catch (e) {
+        showToast("Erro ao iniciar lição: " + e.message, "err");
+    }
+}
+
+async function sendInput() {
+    const input = document.getElementById("lessonInput");
+    const val = input.value.trim();
+    if (!val) return;
+
+    appendMsg("Você", val, "me");
+    input.value = "";
+
+    try {
+        const res = await apiCall("/v1/lesson/next", "POST", { user_id: state.sessionId, user_input: val });
+        if (res.error) throw new Error(res.error);
+
+        if (res.feedback) {
+            renderFeedback(res.feedback);
+        }
+
+        if (res.status === "finished") {
+            appendMsg("Tutor", "Lição concluída! Clique em 'Finalizar' para salvar seu progresso.", "bot");
+            document.getElementById("lessonSend").classList.add("hidden");
+            document.getElementById("lessonFinish").classList.remove("hidden");
+        } else {
+            appendMsg("Tutor", res.instruction, "bot");
+            const badge = document.getElementById("stepBadge");
+            if (badge && res.step_index) badge.innerText = `Passo ${res.step_index + 1}`;
+        }
+    } catch (e) {
+        showToast("Erro: " + e.message, "err");
+    }
+}
+
+function appendMsg(role, text, cls, html = null) {
+    const chat = document.getElementById("lessonChat");
+    if (!chat) return;
+
+    const div = document.createElement("div");
+    div.className = `flex ${cls === 'me' ? 'justify-end' : 'justify-start'} mb-4 animate-in fade-in slide-in-from-bottom-2`;
+
+    if (html) {
+        div.innerHTML = html;
+    } else {
+        const isBot = cls === 'bot';
+        div.innerHTML = `
+            <div class="max-w-[80%] ${isBot ? 'bg-gray-100 text-gray-800 rounded-2xl' : 'bg-blue-600 text-white rounded-2xl'} p-4 shadow-sm">
+                <p class="text-[10px] font-bold uppercase opacity-50 mb-1">${role}</p>
+                <p class="text-sm">${text.replace(/\n/g, '<br>')}</p>
+            </div>
+        `;
+    }
+
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+}
 
 async function completeLesson() {
     try {

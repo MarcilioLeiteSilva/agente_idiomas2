@@ -89,14 +89,13 @@ export function navigate(pageId) {
     main.innerHTML = ""; // Hard clear
     activePageModule = PAGES[pageId];
     if (activePageModule && activePageModule.mount) {
-        activePageModule.mount(main).then(() => {
+        Promise.resolve(activePageModule.mount(main)).then(() => {
             if (window.HSStaticMethods) {
                 window.HSStaticMethods.autoInit();
                 console.log("Preline autoInit invoked for", pageId);
             }
         }).catch(err => {
             console.error("Mount error:", err);
-            // Fallback for non-async mount
             if (window.HSStaticMethods) window.HSStaticMethods.autoInit();
         });
     }
