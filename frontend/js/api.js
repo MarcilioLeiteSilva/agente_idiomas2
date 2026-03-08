@@ -1,8 +1,16 @@
 // detect environment
-const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
-const API_BASE = isLocal ? "http://127.0.0.1:8000" : window.location.origin;
-// If using the Nginx proxy from docker-compose, both are on the same origin (port 8080 or domain)
-// So window.location.origin works well for production.
+const host = window.location.hostname;
+const isLocal = host === "localhost" || host === "127.0.0.1";
+
+// Special handling for Easypanel subdomains
+let API_BASE = isLocal ? "http://127.0.0.1:8000" : window.location.origin;
+
+if (host.includes("app.agente-idiomas2-backend")) {
+    API_BASE = "https://api.agente-idiomas2-backend." + host.split("app.agente-idiomas2-backend.")[1];
+} else if (!isLocal) {
+    // If we're on a generic subdomain, try to see if we should use 'api' instead of 'app'
+    API_BASE = window.location.origin.replace("://app.", "://api.");
+}
 
 export async function apiCall(endpoint, method = "GET", body = null) {
     const headers = { "Content-Type": "application/json; charset=utf-8" };
