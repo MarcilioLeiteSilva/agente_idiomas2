@@ -1,25 +1,17 @@
 const host = window.location.hostname;
-const origin = window.location.origin;
+const isLocal = host === "localhost" || host === "127.0.0.1";
 
-// URL real do backend no Easypanel
+// URL verificada do Backend no Easypanel
 const PROD_API_URL = "https://agente-idiomas2-backend.gtalg3.easypanel.host";
 
-let API_BASE;
+let API_BASE = isLocal ? "http://127.0.0.1:8000" : PROD_API_URL;
 
-// Ambiente local
-if (host === "localhost" || host === "127.0.0.1") {
-    API_BASE = "http://127.0.0.1:8000";
-}
-// Produção com subdomínios app/api
-else if (host.startsWith("app.")) {
-    API_BASE = origin.replace("://app.", "://api.");
-}
-// Produção / fallback
-else {
-    API_BASE = PROD_API_URL;
+// Lógica de fallback para subdomínios (troca 'frontend' por 'backend' no host)
+if (!isLocal && host.includes("-frontend.")) {
+    API_BASE = window.location.origin.replace("-frontend.", "-backend.");
 }
 
-console.warn(`[AGENTE IDIOMAS] API_BASE: ${API_BASE}`);
+console.warn(`[AGENTE IDIOMAS] API_BASE vinculada: ${API_BASE}`);
 
 export async function apiCall(endpoint, method = "GET", body = null) {
     const headers = {};
