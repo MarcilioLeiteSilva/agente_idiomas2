@@ -2,6 +2,7 @@ import "preline";
 import { renderLayout, setActiveNav } from "./ui/layout.js";
 import { state, clearState, setUserProfile } from "./state.js";
 import { apiCall } from "./api.js";
+import * as PageDashboard from "./pages/dashboard.js";
 import * as PageText from "./pages/text.js";
 import * as PageAudio from "./pages/audio.js";
 import * as PageInterp from "./pages/interpreter.js";
@@ -12,7 +13,21 @@ import * as PageInterpAuto from "./pages/interpreter_auto.js";
 
 import * as PageOnboarding from "./pages/onboarding.js";
 
+// Título exibido no header para cada página
+const PAGE_TITLES = {
+    dashboard: "Dashboard",
+    text: "Chat de Texto",
+    audio: "Chat de Voz",
+    lessons: "Trilhas de Estudo",
+    interpreter: "Intérprete",
+    interpreter_auto: "Intérprete Automático",
+    progress: "Meu Progresso",
+    settings: "Configurações",
+    onboarding: "Configuração Inicial",
+};
+
 const PAGES = {
+    dashboard: PageDashboard,
     text: PageText,
     audio: PageAudio,
     interpreter: PageInterp,
@@ -62,7 +77,7 @@ async function init() {
             if (userDisplay) {
                 userDisplay.innerText = profile.full_name || email.split("@")[0];
             }
-            navigate("lessons");
+            navigate("dashboard");
         } else {
             console.log("Profile missing, redirecting to onboarding");
             navigate("onboarding");
@@ -81,9 +96,13 @@ export function navigate(pageId) {
         activePageModule.unmount();
     }
 
-    // Update UI
+    // Update UI — título e nav ativo
     setActiveNav(pageId);
     state.currentPage = pageId;
+
+    // Atualiza título da seção no header
+    const titleEl = document.getElementById("pageTitle");
+    if (titleEl) titleEl.textContent = PAGE_TITLES[pageId] || pageId;
 
     // Mount new page
     const main = document.getElementById("mainContent");
