@@ -6,6 +6,64 @@ import { showToast } from "../ui/toast.js";
 let container = null;
 let currentLessonId = null;
 
+// ─── TTS ─────────────────────────────────────────────────────────────────────
+
+// Mapa idioma -> locale BCP-47
+const LANG_LOCALE = {
+    en: "en-US", fr: "fr-FR", es: "es-ES",
+    de: "de-DE", it: "it-IT", pt: "pt-BR",
+    ja: "ja-JP", zh: "zh-CN"
+};
+
+function getLessonLang() {
+    const tl = state.userProfile?.target_language || "en";
+    return LANG_LOCALE[tl.toLowerCase()] || "en-US";
+}
+
+function speakText(text, lang) {
+    if (!window.speechSynthesis) return;
+    // Limpar fila para não sobrepor
+    window.speechSynthesis.cancel();
+    const utt = new SpeechSynthesisUtterance(text);
+    utt.lang = lang || getLessonLang();
+    utt.rate = 0.92;
+    utt.pitch = 1;
+    window.speechSynthesis.speak(utt);
+}
+
+/**
+ * Cria o botão de áudio SVG (volume-2).
+ * @param {string} text  - texto a ser lido
+ * @param {string} [variant] - 'dark' para fundo colorido (msg do bot) | 'light' para card claro
+ */
+function createAudioBtn(text, variant = "dark") {
+    const btn = document.createElement("button");
+    btn.title = "Ouvir";
+    btn.type = "button";
+
+    const baseClass = "flex-shrink-0 w-7 h-7 inline-flex items-center justify-center rounded-full transition-all active:scale-90 focus:outline-none focus:ring-2 focus:ring-blue-400";
+    const darkClass = "bg-blue-100 text-blue-600 hover:bg-blue-200 dark:bg-blue-900/40 dark:text-blue-400 dark:hover:bg-blue-800";
+    const lightClass = "bg-gray-100 text-gray-500 hover:bg-gray-200 dark:bg-slate-700 dark:text-gray-400 dark:hover:bg-slate-600";
+
+    btn.className = `${baseClass} ${variant === "dark" ? darkClass : lightClass}`;
+    btn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 0 1 0 12.728M16.463 8.288a5.25 5.25 0 0 1 0 7.424M6.75 8.25l4.72-4.72a.75.75 0 0 1 1.28.53v15.88a.75.75 0 0 1-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.009 9.009 0 0 1 2.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75Z" />
+        </svg>
+    `;
+
+    // Estado de reprodução (animar enquanto fala)
+    btn.onclick = () => {
+        speakText(text);
+        btn.classList.add("animate-pulse");
+        // Remove animação ao terminar (~duração estimada)
+        const dur = Math.max(1000, text.length * 60);
+        setTimeout(() => btn.classList.remove("animate-pulse"), dur);
+    };
+
+    return btn;
+}
+
 // Ícones temáticos por título/objetivo da lição
 const LESSON_ICONS = [
     { keywords: ["greeting", "introduction", "hello", "cumprimento"], icon: "👋" },
@@ -326,8 +384,9 @@ function renderActiveLesson(data) {
     document.getElementById("lessonFinish").onclick = completeLesson;
     document.getElementById("lessonInput").onkeydown = (e) => { if (e.key === "Enter") sendInput(); };
 
-    // Primeira mensagem do tutor
+    // Primeira mensagem do tutor + auto-leitura
     appendMsg("Tutor", data.first_step, "bot");
+    speakText(data.first_step);
 }
 
 // ─── FEEDBACK ─────────────────────────────────────────────────────────────────
@@ -367,12 +426,14 @@ function renderFeedback(fb) {
             </div>` : ""}
             <!-- Correções -->
             ${fb.corrections?.length ? `
-            <div class="px-4 pb-4 border-t border-gray-200/50 dark:border-gray-700/50 pt-3">
+            <div class="px-4 pb-4 border-t border-gray-200/50 dark:border-gray-700/50 pt-3" id="fbCorrections">
                 <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Correções</p>
-                <ul class="space-y-1">
-                    ${fb.corrections.map(c => `
-                        <li class="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
-                            <span class="text-amber-500 mt-0.5">→</span> ${c}
+                <ul class="space-y-2" id="fbCorrectionsList">
+                    ${fb.corrections.map((c, i) => `
+                        <li class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                            <span class="text-amber-500 mt-0.5 flex-shrink-0">→</span>
+                            <span class="flex-1">${c}</span>
+                            <span class="fb-audio-slot" data-correction="${i}"></span>
                         </li>
                     `).join("")}
                 </ul>
@@ -382,6 +443,20 @@ function renderFeedback(fb) {
 
     appendMsg("Avaliação", "", "fb", html);
     showToast(`Pontuação: ${score}/100`, score >= 75 ? "success" : "info");
+
+    // Injetar botões de áudio nas correções (após o innerHTML ser inserido no DOM)
+    if (fb.corrections?.length) {
+        // Aguarda o próximo frame para garantir que o DOM foi inserido
+        requestAnimationFrame(() => {
+            document.querySelectorAll(".fb-audio-slot").forEach(slot => {
+                const idx = parseInt(slot.dataset.correction, 10);
+                const correction = fb.corrections[idx];
+                if (correction) {
+                    slot.appendChild(createAudioBtn(correction, "light"));
+                }
+            });
+        });
+    }
 }
 
 // ─── AÇÕES ────────────────────────────────────────────────────────────────────
@@ -439,6 +514,7 @@ async function sendInput() {
             if (pb) pb.style.width = "100%";
         } else {
             appendMsg("Tutor", res.instruction, "bot");
+            speakText(res.instruction);
 
             // Atualizar hint e progresso
             const hint = document.getElementById("currentStepHint");
@@ -477,18 +553,44 @@ function appendMsg(role, text, cls, html = null) {
         const isBot = cls === "bot";
 
         wrapper.className = `flex ${isMe ? "justify-end" : "justify-start"} gap-2.5`;
-        wrapper.innerHTML = `
-            ${isBot ? `
-            <div class="flex-shrink-0 w-8 h-8 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-sm mt-1">
-                🤖
-            </div>` : ""}
-            <div class="max-w-[75%] ${isMe
+
+        // Bubble container
+        const bubble = document.createElement("div");
+        bubble.className = `max-w-[75%] ${isMe
                 ? "bg-blue-600 text-white rounded-2xl rounded-tr-sm shadow-sm shadow-blue-500/20"
                 : "bg-white dark:bg-slate-800 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-2xl rounded-tl-sm shadow-sm"
-            } px-4 py-3">
-                <p class="text-sm leading-relaxed">${text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>')}</p>
-            </div>
-        `;
+            } px-4 py-3`;
+
+        // Texto formatado
+        const p = document.createElement("p");
+        p.className = "text-sm leading-relaxed";
+        p.innerHTML = text
+            .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+            .replace(/\n/g, "<br>");
+        bubble.appendChild(p);
+
+        // Botão de áudio apenas nas msgs do tutor (bot), sempre visível
+        if (isBot) {
+            const audioRow = document.createElement("div");
+            audioRow.className = "flex items-center gap-2 mt-2 pt-2 border-t border-gray-100 dark:border-gray-700";
+
+            const label = document.createElement("span");
+            label.className = "text-[11px] text-gray-400 dark:text-gray-500 select-none";
+            label.textContent = "Ouvir";
+
+            audioRow.appendChild(label);
+            audioRow.appendChild(createAudioBtn(text));
+            bubble.appendChild(audioRow);
+        }
+
+        if (isBot) {
+            const avatar = document.createElement("div");
+            avatar.className = "flex-shrink-0 w-8 h-8 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-sm mt-1";
+            avatar.textContent = "🤖";
+            wrapper.appendChild(avatar);
+        }
+
+        wrapper.appendChild(bubble);
     }
 
     chat.appendChild(wrapper);
