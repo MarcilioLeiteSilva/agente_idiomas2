@@ -263,8 +263,10 @@ function appendMsg(role, text, cls) {
     const log = document.getElementById("textLog");
     if (!log) return;
 
-    // "Quando entra uma mensagem a outra some" -> Clear log before appending
-    log.innerHTML = '';
+    // Remove empty state message or old single-message if exists
+    if (log.querySelector('.max-w-\\[85\\%\\]') || log.querySelector('.text-slate-500')) {
+        log.innerHTML = '';
+    }
 
     const div = document.createElement("div");
     const formattedText = text.replace(/\n/g, '<br>');
@@ -296,4 +298,5 @@ function appendMsg(role, text, cls) {
     }
 
     log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
 }
