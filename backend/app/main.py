@@ -26,11 +26,27 @@ memory_service = MemoryService() # Novo global
 # Configuração do FastAPI com suporte a roteamento flexível
 app = FastAPI(title="Agente Idiomas (Local)", redirect_slashes=True)
 
-# CORS robusto para produção e desenvolvimento
+# Debug middleware to trace CORS
+@app.middleware("http")
+async def cors_debug(request, call_next):
+    origin = request.headers.get("origin")
+    method = request.method
+    logger.info(f"[CORS-DEBUG] Method: {method}, Path: {request.url.path}, Origin: {origin}")
+    response = await call_next(request)
+    return response
+
+# CORS robusto
+origins = [
+    "https://agente-idiomas2-frontend.gtalg3.easypanel.host",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "http://localhost:5173",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], 
-    allow_credentials=False, # Alterado para False para compatibilidade total com wildcard "*"
+    allow_origins=origins,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
