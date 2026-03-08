@@ -26,79 +26,116 @@ export function unmount() {
 
 function render() {
     container.innerHTML = `
-        <h2>Configurações</h2>
-        <div class="form-group">
-            <label>Session ID (User):</label>
-            <input id="inpSession" value="${state.sessionId}" />
-        </div>
-        <div class="form-group">
-            <label>Idioma Nativo:</label>
-            <select id="inpNative">
-                <option value="pt" ${state.userProfile.native_language === 'pt' ? 'selected' : ''}>Português</option>
-                <option value="en" ${state.userProfile.native_language === 'en' ? 'selected' : ''}>English</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>Idioma Alvo:</label>
-            <select id="inpTarget">
-                <option value="en" ${state.userProfile.target_language === 'en' ? 'selected' : ''}>English</option>
-                <option value="fr" ${state.userProfile.target_language === 'fr' ? 'selected' : ''}>Français</option>
-                <option value="pt" ${state.userProfile.target_language === 'pt' ? 'selected' : ''}>Português</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>Nível:</label>
-            <select id="inpLevel">
-                <option value="A1" ${state.userProfile.level === 'A1' ? 'selected' : ''}>A1 (Iniciante)</option>
-                <option value="A2" ${state.userProfile.level === 'A2' ? 'selected' : ''}>A2 (Básico)</option>
-                <option value="B1" ${state.userProfile.level === 'B1' ? 'selected' : ''}>B1 (Intermediário)</option>
-                <option value="B2" ${state.userProfile.level === 'B2' ? 'selected' : ''}>B2 (Avançado)</option>
-            </select>
-        </div>
-        <hr/>
-        <h3>Diagnóstico</h3>
-        <div class="form-group">
-            <button id="btnHealth" class="secondary-btn">Testar Conexão (Health)</button>
-            <span id="healthStatus" style="margin-left: 10px; font-weight: bold;"></span>
-        </div>
-        <div id="diagnosticsArea" style="margin-top: 10px; font-family: monospace; font-size: 0.9em; background: #eee; padding: 10px; display: none;">
-            <!-- Metrics will appear here -->
-        </div>
+        <div class="settings-grid">
+            <div class="card glass">
+                <h3>Perfil do Aluno</h3>
+                <div class="form-group">
+                    <label>Seu Nome / ID:</label>
+                    <input id="inpSession" class="styled-input" value="${state.sessionId}" />
+                </div>
+                <div class="form-group">
+                    <label>Idioma Nativo:</label>
+                    <select id="inpNative" class="styled-input">
+                        <option value="pt" ${state.userProfile.native_language === 'pt' ? 'selected' : ''}>Português</option>
+                        <option value="en" ${state.userProfile.native_language === 'en' ? 'selected' : ''}>English</option>
+                    </select>
+                </div>
+            </div>
 
-        <button id="btnSaveSettings" class="primary-btn" style="margin-top: 20px;">Salvar</button>
+            <div class="card glass">
+                <h3>Metas de Aprendizado</h3>
+                <div class="form-group">
+                    <label>Idioma Alvo:</label>
+                    <select id="inpTarget" class="styled-input">
+                        <option value="en" ${state.userProfile.target_language === 'en' ? 'selected' : ''}>English (EUA/UK)</option>
+                        <option value="fr" ${state.userProfile.target_language === 'fr' ? 'selected' : ''}>Français (França)</option>
+                        <option value="es" ${state.userProfile.target_language === 'es' ? 'selected' : ''}>Español (Espanha)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Nível de Proficiência:</label>
+                    <select id="inpLevel" class="styled-input">
+                        <option value="Básico" ${state.userProfile.level === 'Básico' ? 'selected' : ''}>Iniciante / Básico</option>
+                        <option value="Intermediário" ${state.userProfile.level === 'Intermediário' ? 'selected' : ''}>Intermediário (B1/B2)</option>
+                        <option value="Avançado" ${state.userProfile.level === 'Avançado' ? 'selected' : ''}>Avançado / Fluente</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="card glass full-width">
+                <h3>Conectividade & Diagnóstico</h3>
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <button id="btnHealth" class="btn btn-outline">Testar Conexão</button>
+                    <span id="healthStatus" class="badge">Aguardando...</span>
+                </div>
+                <div id="diagnosticsArea" class="diag-output" style="display: none;"></div>
+                
+                <div style="margin-top: 24px; display: flex; justify-content: flex-end;">
+                    <button id="btnSaveSettings" class="btn btn-primary">Salvar Alterações</button>
+                </div>
+            </div>
+        </div>
     `;
 
     document.getElementById("btnSaveSettings").onclick = save;
     document.getElementById("btnHealth").onclick = checkHealth;
 }
 
+// Styles added via JS for specific layout or could be in design-system.css
+const extraStyles = `
+    .settings-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    .full-width { grid-column: span 2; }
+    .card { padding: 24px; border-radius: 20px; }
+    .diag-output { 
+        margin-top: 16px; 
+        padding: 16px; 
+        background: rgba(0,0,0,0.2); 
+        border-radius: 12px; 
+        font-family: monospace; 
+        font-size: 0.85rem; 
+        color: var(--primary-light);
+    }
+    .styled-input {
+        width: 100%;
+        padding: 12px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        color: white;
+        margin-top: 8px;
+    }
+`;
+
 async function checkHealth() {
     const statusSpan = document.getElementById("healthStatus");
     const diagArea = document.getElementById("diagnosticsArea");
 
     statusSpan.textContent = "Verificando...";
-    statusSpan.style.color = "#666";
+    statusSpan.style.background = "rgba(255,255,255,0.1)";
     diagArea.style.display = "none";
-    diagArea.innerHTML = "";
 
     try {
         await apiCall("/v1/health");
-        statusSpan.textContent = "OK (Online)";
-        statusSpan.style.color = "green";
+        statusSpan.textContent = "CONECTADO";
+        statusSpan.style.background = "rgba(16, 185, 129, 0.2)";
+        statusSpan.style.color = "#10b981";
 
-        // Try diagnostics
         try {
             const diag = await apiCall("/v1/diagnostics");
             diagArea.style.display = "block";
-            diagArea.innerHTML = `<strong>Métricas:</strong><br/><pre>${JSON.stringify(diag, null, 2)}</pre>`;
+            diagArea.innerHTML = `<pre>${JSON.stringify(diag, null, 2)}</pre>`;
         } catch (e) {
             diagArea.style.display = "block";
-            diagArea.innerHTML = "<em>Diagnostics desabilitado ou restrito.</em>";
+            diagArea.innerHTML = "<em>Diagnostics restritos ao admin.</em>";
         }
-
     } catch (e) {
-        statusSpan.textContent = "Erro (Offline)";
-        statusSpan.style.color = "red";
+        statusSpan.textContent = "OFFLINE";
+        statusSpan.style.background = "rgba(239, 68, 68, 0.2)";
+        statusSpan.style.color = "#ef4444";
     }
 }
 
@@ -108,20 +145,22 @@ async function save() {
     const tgt = document.getElementById("inpTarget").value;
     const lvl = document.getElementById("inpLevel").value;
 
-    if (!newSession) return alert("Session ID obrigatório");
+    if (!newSession) {
+        showToast("Escolha um nome ou ID de usuário", "error");
+        return;
+    }
 
     setSessionId(newSession);
     setUserProfile({ native_language: nat, target_language: tgt, level: lvl });
 
-    // Persist to backend
     try {
         await apiCall("/v1/settings", "POST", {
             session_id: newSession,
-            output_mode: "text", // default
-            language: tgt // update agent lang
+            output_mode: "text",
+            language: tgt
         });
-        showToast("Configurações salvas!", "success");
+        showToast("Perfil atualizado com sucesso!", "success");
     } catch (e) {
-        showToast("Erro ao salvar: " + e.message, "err");
+        showToast("Erro ao persistir configurações: " + e.message, "error");
     }
 }

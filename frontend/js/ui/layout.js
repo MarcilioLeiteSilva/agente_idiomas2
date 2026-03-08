@@ -3,33 +3,59 @@
 export function renderLayout() {
     const app = document.getElementById("app");
     app.innerHTML = `
-    <div class="layout-container">
-        <!-- Sidebar -->
-        <nav class="sidebar">
-            <div class="brand">Agente Idiomas</div>
-            <ul class="nav-links">
-                <li data-page="text" class="nav-item">✍️ Texto</li>
-                <li data-page="audio" class="nav-item">🗣️ Áudio</li>
-                <li data-page="interpreter" class="nav-item">🌐 Intérprete</li>
-                <li data-page="interpreter_auto" class="nav-item">🤖 Intérprete Auto</li>
-                <li data-page="lessons" class="nav-item">🎓 Lições</li>
-                <li data-page="progress" class="nav-item">📊 Progresso</li>
-                <li data-page="settings" class="nav-item">⚙️ Config</li>
-            </ul>
-        </nav>
+    <div class="layout-wrapper">
+        <div class="layout-container">
+            <!-- Sidebar -->
+            <nav class="sidebar glass">
+                <div class="brand">
+                    <a href="/index.html" class="logo">Agente<span class="gradient-text">Idiomas</span></a>
+                </div>
+                
+                <ul class="nav-links">
+                    <li data-page="text" class="nav-item">✍️ Chat</li>
+                    <li data-page="audio" class="nav-item">🗣️ Voz</li>
+                    <li data-page="lessons" class="nav-item">🎓 Trilhas</li>
+                    <li data-page="interpreter" class="nav-item">🌐 Intérprete</li>
+                    <li data-page="progress" class="nav-item">📊 Evolução</li>
+                    <li data-page="settings" class="nav-item">⚙️ Ajustes</li>
+                </ul>
 
-        <!-- Main Content -->
-        <main id="mainContent" class="main-content">
-            <!-- Page content injected here -->
-        </main>
+                <div class="user-footer glass">
+                    <div class="user-avatar">👤</div>
+                    <div class="user-info">
+                        <span class="user-name">Estudante</span>
+                        <span class="user-rank">Explorador</span>
+                    </div>
+                </div>
+            </nav>
 
-        <!-- Right Panel -->
-        <aside class="right-panel">
-            <h3>Assistente</h3>
-            <div id="rightPanelList" class="rp-list">
-                <!-- System messages -->
+            <!-- Main Content Area -->
+            <div class="main-wrapper">
+                <header class="top-header glass">
+                    <div class="header-left">
+                        <h2 id="pageTitle">Chat</h2>
+                    </div>
+                    <div class="header-right">
+                        <div class="stat-badge">🔥 3 Dias</div>
+                        <div class="stat-badge">XP: 450</div>
+                    </div>
+                </header>
+                
+                <main id="mainContent" class="main-content">
+                    <!-- Page content injected here -->
+                </main>
             </div>
-        </aside>
+            
+            <!-- Right Panel (Contextual) -->
+            <aside class="right-panel glass">
+                <div class="rp-header">
+                    <h4>Assistente</h4>
+                </div>
+                <div id="rightPanelList" class="rp-list">
+                    <!-- System messages -->
+                </div>
+            </aside>
+        </div>
     </div>
     `;
 }
