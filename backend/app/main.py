@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-from fastapi import FastAPI, Form, File, UploadFile
+from fastapi import FastAPI, Form, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel
@@ -77,6 +77,7 @@ def dashboard():
 from core.auth import get_password_hash, verify_password, create_access_token
 import uuid
 
+# --- MODELS ---
 class RegisterReq(BaseModel):
     email: str
     password: str
@@ -89,6 +90,7 @@ class LoginReq(BaseModel):
 class MessageItem(BaseModel):
     role: str
     content: str
+    meta: Optional[Dict] = None
 
 class MessageReq(BaseModel):
     session_id: str
@@ -97,36 +99,102 @@ class MessageReq(BaseModel):
 
 class SettingsReq(BaseModel):
     session_id: str
-    output_mode: Literal["text", "voice"]
+    output_mode: Literal["text", "audio"] # Corrigido de "voice" para "audio"
     language: str
 
+class ProfileReq(BaseModel):
+    user_id: str
+    native_language: str = "pt"
+    target_language: str
+    level: str = "A1"
+    goals: Optional[str] = ""
+    correction_style: str = "moderado"
+
+class TranslateReq(BaseModel):
+    source_lang: str
+    target_lang: str
+    text: str
+
+class LessonStartReq(BaseModel):
+    user_id: str
+    lesson_id: str
+
+class LessonNextReq(BaseModel):
+    user_id: str
+    user_input: str
+
+class LessonCompleteReq(BaseModel):
+    user_id: str
+    score: int = -1
+
+class ReviewStartReq(BaseModel):
+    user_id: str
+    items: int = 5
+
+class ReviewAnswerReq(BaseModel):
+    user_id: str
+    review_session_id: str
+    exercise_id: str
+    type: str 
+    user_input: str
+    expected_focus: str
+
+class ReviewCompleteReq(BaseModel):
+    user_id: str
+    review_session_id: str
+
+class LessonStopReq(BaseModel):
+    user_id: str
+
+# --- AUTH ENDPOINTS ---
 @app.post("/v1/auth/register")
 def register(req: RegisterReq):
-    existing = store.get_user_by_email(req.email)
-    if existing:
-        from fastapi import HTTPException
-        raise HTTPException(status_code=400, detail="Email já cadastrado")
-    
-    user_id = str(uuid.uuid4())
-    pw_hash = get_password_hash(req.password)
-    store.create_user(user_id, req.email, pw_hash, req.full_name)
-    
-    return {"ok": True, "user_id": user_id}
+    try:
+        if not req.email or "@" not in req.email:
+            raise HTTPException(status_code=400, detail="E-mail inválido")
+            
+        existing = store.get_user_by_email(req.email)
+        if existing:
+            raise HTTPException(status_code=400, detail="Email já cadastrado")
+        
+        user_id = str(uuid.uuid4())
+        pw_hash = get_password_hash(req.password)
+        store.create_user(user_id, req.email, pw_hash, req.full_name)
+        
+        return {"ok": True, "user_id": user_id}
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        logger.error(f"Register error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/v1/auth/login")
 def login(req: LoginReq):
-    user = store.get_user_by_email(req.email)
-    if not user or not verify_password(req.password, user["password_hash"]):
-        from fastapi import HTTPException
-        raise HTTPException(status_code=401, detail="E-mail ou senha inválidos")
-    
-    token = create_access_token({"sub": user["id"]})
-    return {"ok": True, "access_token": token, "user": {"id": user["id"], "name": user["name"]}}
+    try:
+        user = store.get_user_by_email(req.email)
+        if not user or not verify_password(req.password, user["password_hash"]):
+            raise HTTPException(status_code=401, detail="E-mail ou senha inválidos")
+        
+        token = create_access_token({"sub": user["id"]})
+        # Note: store uses field 'name'. Check if it matches frontend expectation.
+        return {
+            "ok": True, 
+            "access_token": token, 
+            "user": {
+                "id": user["id"], 
+                "name": user.get("name", user.get("full_name", ""))
+            }
+        }
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        logger.error(f"Login error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 # --- HEALTH & DIAGNOSTICS ---
 @app.get("/health")
 def root_health():
-    return {"ok": True, "version": "v14.2-cors-brute"}
+    return {"ok": True, "version": "v14.3-fix-500"}
 
 @app.get("/v1/health")
 def v1_health():
@@ -134,13 +202,12 @@ def v1_health():
 
 @app.get("/v1/diagnostics")
 def v1_diagnostics():
-    from fastapi import HTTPException
     if os.getenv("ENABLE_DIAGNOSTICS") != "1":
         raise HTTPException(status_code=403, detail="Diagnostics disabled")
         
     data = metrics.get_metrics()
     data["db_path"] = store.path
-    data["app_version"] = "agente_idiomas2_v13_phase1_complete"
+    data["app_version"] = "agente_idiomas2_v14_debug"
     return data
 
 # Middleware/Decorator for logging
@@ -175,7 +242,7 @@ def log_execution(endpoint_name):
                     "endpoint": endpoint_name,
                     "user_id": user_id,
                     "status_code": 200,
-                    "duration_ms": round(duration * 1000, 2),
+                    "duration_ms": int(duration * 1000),
                 }
                 logger.info(json.dumps(log_entry, ensure_ascii=False))
                 
@@ -187,7 +254,7 @@ def log_execution(endpoint_name):
                     "endpoint": endpoint_name,
                     "status_code": 500,
                     "error": str(e),
-                    "duration_ms": round(duration * 1000, 2)
+                    "duration_ms": int(duration * 1000)
                 }))
                 raise e
         return wrapper
