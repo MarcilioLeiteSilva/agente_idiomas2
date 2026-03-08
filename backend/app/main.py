@@ -80,15 +80,23 @@ class SettingsReq(BaseModel):
     output_mode: Optional[Literal["text", "audio"]] = None
     language: Optional[Literal["pt", "en", "fr", "auto"]] = None
 
+@app.get("/")
+def index():
+    if WEB_DIR.exists() and (WEB_DIR / "index.html").exists():
+        return FileResponse(WEB_DIR / "index.html")
+    return {"message": "Agente Idiomas API is running. Use /docs for API documentation."}
+
+@app.get("/health")
+def root_health():
+    return {"ok": True, "version": "v13.9"}
+
 @app.get("/v1/health")
-def health():
+def v1_health():
     return {"ok": True}
 
 @app.get("/v1/diagnostics")
 def v1_diagnostics():
     if os.getenv("ENABLE_DIAGNOSTICS") != "1":
-        # Return 403 or 404
-        from fastapi import HTTPException
         raise HTTPException(status_code=403, detail="Diagnostics disabled")
         
     data = metrics.get_metrics()
