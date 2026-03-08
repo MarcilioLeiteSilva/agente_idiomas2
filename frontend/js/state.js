@@ -34,5 +34,6 @@ export function setUserProfile(profile) {
 export function clearState() {
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem("access_token");
+    localStorage.removeItem("user_email");
     window.location.href = "auth.html";
 }

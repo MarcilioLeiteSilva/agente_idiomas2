@@ -1,0 +1,53 @@
+{
+    "target_language": "en",
+    "level": "Avançado",
+    "description": "Nível avançado focado em debates e fluência complexa.",
+    "lessons": [
+        {
+            "lesson_id": "en_c1_01",
+            "title": "Debating Modern Technology",
+            "objective": "Argue for or against technological impacts.",
+            "target_vocab": [
+                "Impact",
+                "Invasive",
+                "Revolutionize",
+                "Artificial Intelligence",
+                "Ethics"
+            ],
+            "target_grammar": [
+                "Advanced linkers (However, Furthermore, Consequently)",
+                "Second and Third Conditionals"
+            ],
+            "script_steps": [
+                "Present a controversial tech topic.",
+                "Ask student to argue for it.",
+                "Ask student to argue against it.",
+                "Teach and practice advanced linkers.",
+                "Draw a conclusion on the ethics."
+            ]
+        },
+        {
+            "lesson_id": "en_c1_02",
+            "title": "Business and Negotiations",
+            "objective": "Practice professional communication skills.",
+            "target_vocab": [
+                "Agreement",
+                "Compromise",
+                "Terms",
+                "Win-win",
+                "Stakeholder"
+            ],
+            "target_grammar": [
+                "Polite disagreement phrases",
+                "Persuasive language"
+            ],
+            "script_steps": [
+                "Set a business scenario (selling a product).",
+                "Start a mock negotiation.",
+                "Respond to objections and offer compromises.",
+                "Reach a final agreement.",
+                "Review business-appropriate phrases."
+            ]
+        }
+    ]
+}

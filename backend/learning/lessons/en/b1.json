@@ -1,0 +1,53 @@
+{
+    "target_language": "en",
+    "level": "Intermediário",
+    "description": "Nível intermediário focado em conversação e opinião.",
+    "lessons": [
+        {
+            "lesson_id": "en_b1_01",
+            "title": "Discussing Hobbies",
+            "objective": "Express interests and hobbies with more detail.",
+            "target_vocab": [
+                "Interest",
+                "Passionate",
+                "Relaxing",
+                "Exciting",
+                "Hobby"
+            ],
+            "target_grammar": [
+                "I enjoy doing...",
+                "I have been doing... for X years"
+            ],
+            "script_steps": [
+                "Ask about hobbies.",
+                "Introduce intermediate verbs for interests.",
+                "Practice using 'for' and 'since'.",
+                "Explain why you like a certain hobby.",
+                "Ask student to describe a hobby in 5 sentences."
+            ]
+        },
+        {
+            "lesson_id": "en_b1_02",
+            "title": "Traveling and Plans",
+            "objective": "Talk about trips and future plans.",
+            "target_vocab": [
+                "Destination",
+                "Sightseeing",
+                "Itinerary",
+                "Flight",
+                "Hotel"
+            ],
+            "target_grammar": [
+                "Going to vs Will",
+                "Present Continuous for future plans"
+            ],
+            "script_steps": [
+                "Ask about the student's next trip.",
+                "Explain 'going to' vs 'will'.",
+                "Practice making specific plans.",
+                "Simulate booking a hotel or flight.",
+                "Ask student for a 1-day travel itinerary."
+            ]
+        }
+    ]
+}

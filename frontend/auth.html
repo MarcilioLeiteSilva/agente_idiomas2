@@ -187,7 +187,8 @@
                 if (isLogin) {
                     if (data.access_token) {
                         localStorage.setItem('access_token', data.access_token);
-                        setSessionId(data.email || email); // Use email as session ID for now
+                        localStorage.setItem('user_email', email);
+                        setSessionId(email);
                         alert('Login realizado com sucesso!');
                         window.location.href = 'dashboard.html';
                     }

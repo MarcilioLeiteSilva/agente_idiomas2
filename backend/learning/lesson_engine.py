@@ -12,7 +12,18 @@ class LessonEngine:
         if not target_language or not level:
              return {"error": "Missing parameters"}
              
-        file_path = self.lessons_dir / target_language.lower() / f"{level.lower()}.json"
+        # Mapping for user-friendly levels to technical filenames
+        level_map = {
+            "básico": "a1",
+            "intermediário": "b1",
+            "avançado": "c1",
+            "a1": "a1",
+            "b1": "b1",
+            "c1": "c1"
+        }
+        
+        mapped_level = level_map.get(level.lower(), level.lower())
+        file_path = self.lessons_dir / target_language.lower() / f"{mapped_level}.json"
         
         if not file_path.exists():
             return {"error": "Catalog not found", "path": str(file_path)}

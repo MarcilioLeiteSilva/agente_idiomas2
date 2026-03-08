@@ -9,6 +9,8 @@ import * as PageProgress from "./pages/progress.js";
 import * as PageSettings from "./pages/settings.js";
 import * as PageInterpAuto from "./pages/interpreter_auto.js";
 
+import * as PageOnboarding from "./pages/onboarding.js";
+
 const PAGES = {
     text: PageText,
     audio: PageAudio,
@@ -16,12 +18,13 @@ const PAGES = {
     interpreter_auto: PageInterpAuto,
     lessons: PageLessons,
     progress: PageProgress,
-    settings: PageSettings
+    settings: PageSettings,
+    onboarding: PageOnboarding
 };
 
 let activePageModule = null;
 
-function init() {
+async function init() {
     // Auth Guard
     const token = localStorage.getItem("access_token");
     if (!token) {
@@ -30,12 +33,6 @@ function init() {
     }
 
     renderLayout();
-
-    // Update User Name in Sidebar
-    const userDisplay = document.getElementById("userNameDisplay");
-    if (userDisplay && state.sessionId) {
-        userDisplay.innerText = state.sessionId.split("@")[0]; // Simple display logic
-    }
 
     // Setup Nav Listeners
     document.querySelectorAll(".nav-item[data-page]").forEach(el => {
@@ -52,11 +49,29 @@ function init() {
         };
     }
 
-    // Default Page
-    navigate("lessons"); // Start in lessons after login
+    // Load Profile & Initial Routing
+    try {
+        const email = localStorage.getItem("user_email") || state.sessionId;
+        const profile = await apiCall(`/v1/profile?user_id=${email}`);
+
+        if (profile) {
+            setUserProfile(profile);
+            // Update User Name in Sidebar
+            const userDisplay = document.getElementById("userNameDisplay");
+            if (userDisplay) {
+                userDisplay.innerText = profile.full_name || email.split("@")[0];
+            }
+            navigate("lessons");
+        } else {
+            navigate("onboarding");
+        }
+    } catch (e) {
+        console.warn("Profile not found or error, showing onboarding:", e);
+        navigate("onboarding");
+    }
 }
 
-function navigate(pageId) {
+export function navigate(pageId) {
     if (!PAGES[pageId]) return;
 
     // Cleanup old page

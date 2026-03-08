@@ -1,0 +1,50 @@
+{
+    "target_language": "fr",
+    "level": "A1",
+    "description": "Niveau débutant axé sur la communication de base.",
+    "lessons": [
+        {
+            "lesson_id": "fr_a1_01",
+            "title": "Salutations et Présentations",
+            "objective": "Apprendre à saluer et à se présenter en français.",
+            "target_vocab": ["Bonjour", "Salut", "Je m'appelle", "Enchanté", "Au revoir"],
+            "target_grammar": ["Verbe 'être' (Je suis, Tu es)", "Structure de phrase simple"],
+            "script_steps": [
+                "Salué l'étudiant et demandé son nom.",
+                "Enseigné 'Bonjour, je m'appelle...'.",
+                "Pratiqué les présentations.",
+                "Enseigné 'Enchanté'.",
+                "Simuler une courte rencontre.",
+                "Dire au revoir."
+            ]
+        },
+        {
+            "lesson_id": "fr_a1_02",
+            "title": "Les Nombres et l'Âge",
+            "objective": "Apprendre à compter jusqu'à 20 et à donner son âge.",
+            "target_vocab": ["Un", "Deux", "Dix", "Vingt", "Âge", "Ans", "J'ai"],
+            "target_grammar": ["Quel âge as-tu?", "J'ai X ans (Verbe Avoir)"],
+            "script_steps": [
+                "Revoir les nombres 1-10.",
+                "Enseigné les nombres 11-20.",
+                "Demandé 'Quel âge as-tu?'.",
+                "Pratiqué la réponse 'J'ai...'.",
+                "Interroger l'étudiant sur des nombres au hasard."
+            ]
+        },
+        {
+            "lesson_id": "fr_a1_03",
+            "title": "Commander à Manger",
+            "objective": "Apprendre à commander dans um café.",
+            "target_vocab": ["Le menu", "S'il vous plaît", "De l'eau", "Un café", "Un croissant", "L'addition"],
+            "target_grammar": ["Je voudrais...", "Puis-je avoir...?"],
+            "script_steps": [
+                "Présenter le vocabulaire du restaurant.",
+                "Enseigné des phrases spécifiques pour commander.",
+                "Simuler la lecture du menu.",
+                "Jouer le rôle de commander une boisson et de la nourriture.",
+                "Demander l'addition."
+            ]
+        }
+    ]
+}
