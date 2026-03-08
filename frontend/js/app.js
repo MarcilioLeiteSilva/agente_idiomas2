@@ -1,3 +1,4 @@
+import "preline";
 import { renderLayout, setActiveNav } from "./ui/layout.js";
 import { state, clearState, setUserProfile } from "./state.js";
 import { apiCall } from "./api.js";
