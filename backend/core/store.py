@@ -1,10 +1,11 @@
 import sqlite3
 from datetime import datetime
-
+from pathlib import Path
 
 class Store:
     def __init__(self, path="agent.db"):
         self.path = path
+        Path(self.path).parent.mkdir(parents=True, exist_ok=True)
         self._init()
 
     def _init(self):
