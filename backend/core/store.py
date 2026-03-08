@@ -58,6 +58,16 @@ class Store:
               created_at TEXT NOT NULL
             )""")
 
+            # ✅ NOVO: sistema de usuários (Fase 1 - Passo 4)
+            con.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+              id TEXT PRIMARY KEY,
+              email TEXT UNIQUE NOT NULL,
+              password_hash TEXT NOT NULL,
+              name TEXT,
+              created_at TEXT NOT NULL
+            )""")
+
             # ✅ NOVO: perfil do aluno (Fase 1 - Passo 1)
             # 🔄 UPDATE (Fase 1 - Passo 2): Adicionado native_language
             con.execute("""
@@ -704,3 +714,19 @@ class Store:
              """, (amount, amount, user_id))
              
         return True
+
+    # ✅ NOVO: Métodos de Usuário (Fase 1 - Passo 4)
+    def create_user(self, user_id: str, email: str, password_hash: str, name: str):
+        now = datetime.now().isoformat()
+        with sqlite3.connect(self.path) as con:
+            con.execute("""
+            INSERT INTO users (id, email, password_hash, name, created_at)
+            VALUES (?, ?, ?, ?, ?)
+            """, (user_id, email, password_hash, name, now))
+            return True
+
+    def get_user_by_email(self, email: str):
+        with sqlite3.connect(self.path) as con:
+            con.row_factory = sqlite3.Row
+            row = con.execute("SELECT * FROM users WHERE email=?", (email,)).fetchone()
+            return dict(row) if row else None

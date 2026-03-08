@@ -43,10 +43,34 @@ def detect_lang_simple(text: str) -> str:
 
 def _system_prompt():
     return (
-        "Você é um assistente de conversação útil e natural. "
-        "Responda de forma direta e curta: no máximo 2 frases, a não ser que o usuário peça detalhes. "
-        "Responda no idioma indicado. Se o usuário pedir configurações, sugira 'menu'."
+        "Você é um tutor de idiomas inteligente e empático, focado em conversação prática. "
+        "Seu objetivo é ajudar o aluno a ganhar confiança e fluência. "
+        "Tente manter a conversa fluindo naturalmente, fazendo perguntas abertas. "
+        "Ajuste sua complexidade de acordo com o nível do aluno."
     )
+
+def _get_level_instruction(level: str, target_lang: str):
+    # Map 'Básico', 'Intermediário', 'Avançado' or CEFR codes
+    lvl = level.upper()
+    
+    if lvl in ["A1", "A2", "BÁSICO"]:
+        return (
+            "Nível: BÁSICO. Use frases curtas e vocabulário simples (A1/A2). "
+            "Sempre forneça uma tradução entre parênteses para o português em frases complexas. "
+            "Foqué em vocabulário de sobrevivência e situações cotidianas."
+        )
+    elif lvl in ["B1", "B2", "INTERMEDIÁRIO"]:
+        return (
+            "Nível: INTERMEDIÁRIO. Use frases mais estruturadas e vocabulário variado (B1/B2). "
+            "Introduza gradualmente expressões idiomáticas. "
+            "Traduza apenas termos técnicos ou gírias difíceis. Foque em fluência e gramática média."
+        )
+    elif lvl in ["C1", "C2", "AVANÇADO"]:
+        return (
+            "Nível: AVANÇADO. Fale como um nativo (C1/C2). Use gírias, phrasal verbs e expressões complexas. "
+            "Não forneça traduções. Desafie o aluno com debates, temas abstratos e sutilezas culturais."
+        )
+    return ""
 
 def _lang_hint(lang: str) -> str:
     return {
@@ -96,12 +120,15 @@ def _build_messages(store, session_id: str, user_text: str, lang: str):
     base_prompt = _system_prompt()
     
     if profile:
+        level_instruction = _get_level_instruction(profile.get('level', 'A1'), target_lang)
         profile_instruction = (
-            f"You are a language tutor. The student’s target language is {profile['target_language']}. "
-            f"The student level is {profile['level']}. The student goal is {profile['goals']}. "
-            f"Use correction style {profile['correction_style']}."
+            f"DIRETRIZES DO ALUNO:\n"
+            f"- Idioma Alvo: {profile['target_language']}\n"
+            f"- Nível Atual: {profile['level']}\n"
+            f"- Estilo de Correção: {profile['correction_style']}\n"
+            f"{level_instruction}"
         )
-        base_prompt = f"{profile_instruction}\n\n{base_prompt}"
+        base_prompt = f"{base_prompt}\n\n{profile_instruction}"
 
     # Injeção de Memória de Aprendizado (Normalized items are dicts now, need extraction)
     if learning_mem:

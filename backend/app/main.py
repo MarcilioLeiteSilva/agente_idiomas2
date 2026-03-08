@@ -39,56 +39,60 @@ from fastapi.staticfiles import StaticFiles
 
 WEB_DIR = config.WEB_DIR
 
-@app.get("/")
-def index():
-    if WEB_DIR.exists() and (WEB_DIR / "index.html").exists():
-        return FileResponse(WEB_DIR / "index.html")
-    return {"message": "Agente Idiomas API is running. Frontend service is separate."}
-
-# ✅ NOVO: Router Modulizado (V13)
 from app.api.routes.memory import router as memory_router
 app.include_router(memory_router)
 
-
-
-if not config.OPENAI_API_KEY:
-    raise RuntimeError("Defina OPENAI_API_KEY no arquivo .env")
-
 store = Store(config.DB_PATH)
-
-class AudioIn(BaseModel):
-    mime: str = "audio/ogg"
-    base64: str
-
-class MessageIn(BaseModel):
-    type: Literal["text", "audio"]
-    text: Optional[str] = None
-    audio: Optional[AudioIn] = None
-
-class UIActionIn(BaseModel):
-    action_id: str
-    value: Optional[str] = None
-
-class MessageReq(BaseModel):
-    session_id: str
-    message: MessageIn
-    ui_action: Optional[UIActionIn] = None
-    meta: Optional[Dict[str, Any]] = None
-
-class SettingsReq(BaseModel):
-    session_id: str
-    output_mode: Optional[Literal["text", "audio"]] = None
-    language: Optional[Literal["pt", "en", "fr", "auto"]] = None
 
 @app.get("/")
 def index():
+    # Se existir landing.html, usa ele como root
+    if WEB_DIR.exists() and (WEB_DIR / "landing.html").exists():
+        return FileResponse(WEB_DIR / "landing.html")
     if WEB_DIR.exists() and (WEB_DIR / "index.html").exists():
         return FileResponse(WEB_DIR / "index.html")
-    return {"message": "Agente Idiomas API is running. Use /docs for API documentation."}
+    return {"message": "Agente Idiomas API is running."}
 
+# --- AUTH ENDPOINTS ---
+from core.auth import get_password_hash, verify_password, create_access_token
+import uuid
+
+class RegisterReq(BaseModel):
+    email: str
+    password: str
+    name: str
+
+class LoginReq(BaseModel):
+    email: str
+    password: str
+
+@app.post("/v1/auth/register")
+def register(req: RegisterReq):
+    existing = store.get_user_by_email(req.email)
+    if existing:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=400, detail="Email já cadastrado")
+    
+    user_id = str(uuid.uuid4())
+    pw_hash = get_password_hash(req.password)
+    store.create_user(user_id, req.email, pw_hash, req.name)
+    
+    return {"ok": True, "user_id": user_id}
+
+@app.post("/v1/auth/login")
+def login(req: LoginReq):
+    user = store.get_user_by_email(req.email)
+    if not user or not verify_password(req.password, user["password_hash"]):
+        from fastapi import HTTPException
+        raise HTTPException(status_code=401, detail="E-mail ou senha inválidos")
+    
+    token = create_access_token({"sub": user["id"]})
+    return {"ok": True, "access_token": token, "user": {"id": user["id"], "name": user["name"]}}
+
+# --- HEALTH & DIAGNOSTICS ---
 @app.get("/health")
 def root_health():
-    return {"ok": True, "version": "v13.9"}
+    return {"ok": True, "version": "v14.0-auth"}
 
 @app.get("/v1/health")
 def v1_health():
@@ -96,6 +100,7 @@ def v1_health():
 
 @app.get("/v1/diagnostics")
 def v1_diagnostics():
+    from fastapi import HTTPException
     if os.getenv("ENABLE_DIAGNOSTICS") != "1":
         raise HTTPException(status_code=403, detail="Diagnostics disabled")
         

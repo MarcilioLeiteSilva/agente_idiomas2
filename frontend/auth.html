@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acessar | Agente Idiomas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/design-system.css">
+    <style>
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at top right, rgba(138, 43, 226, 0.15), transparent);
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 440px;
+            padding: 48px;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .auth-header h2 {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: white;
+            transition: var(--trans-fast);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .auth-toggle {
+            text-align: center;
+            margin-top: 24px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .auth-toggle a {
+            color: var(--primary-light);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .social-login {
+            margin-top: 32px;
+            display: flex;
+            gap: 16px;
+        }
+
+        .social-btn {
+            flex: 1;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="auth-container">
+        <div class="auth-card glass">
+            <div class="auth-header">
+                <a href="/" class="logo" style="display: block; margin-bottom: 20px;">Agente<span
+                        class="gradient-text">Idiomas</span></a>
+                <h2 id="authTitle">Bem-vindo de volta</h2>
+                <p id="authSubtitle" style="color: var(--text-muted);">Entre para continuar sua jornada.</p>
+            </div>
+
+            <form id="authForm">
+                <div class="form-group" id="nameGroup" style="display: none;">
+                    <label>Nome Completo</label>
+                    <input type="text" id="nameInput" placeholder="Seu nome">
+                </div>
+                <div class="form-group">
+                    <label>E-mail</label>
+                    <input type="email" id="emailInput" placeholder="exemplo@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Senha</label>
+                    <input type="password" id="passwordInput" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 16px; padding: 14px;">
+                    Entrar
+                </button>
+            </form>
+
+            <div class="auth-toggle">
+                <span id="toggleText">Ainda não tem uma conta?</span>
+                <a href="#" id="toggleBtn">Cadastre-se</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('authForm');
+        const toggleBtn = document.getElementById('toggleBtn');
+        const authTitle = document.getElementById('authTitle');
+        const authSubtitle = document.getElementById('authSubtitle');
+        const nameGroup = document.getElementById('nameGroup');
+        const toggleText = document.getElementById('toggleText');
+        const submitBtn = form.querySelector('button');
+
+        let isLogin = true;
+
+        toggleBtn.onclick = (e) => {
+            e.preventDefault();
+            isLogin = !isLogin;
+
+            if (isLogin) {
+                authTitle.innerText = 'Bem-vindo de volta';
+                authSubtitle.innerText = 'Entre para continuar sua jornada.';
+                nameGroup.style.display = 'none';
+                toggleText.innerText = 'Ainda não tem uma conta?';
+                toggleBtn.innerText = 'Cadastre-se';
+                submitBtn.innerText = 'Entrar';
+            } else {
+                authTitle.innerText = 'Crie sua conta';
+                authSubtitle.innerText = 'Comece a falar um novo idioma hoje.';
+                nameGroup.style.display = 'block';
+                toggleText.innerText = 'Já tem uma conta?';
+                toggleBtn.innerText = 'Entrar';
+                submitBtn.innerText = 'Criar Conta';
+            }
+        };
+
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            // Lógica de integração com backend virá no próximo passo
+            alert('Integração com backend em breve!');
+        };
+    </script>
+</body>
+
+</html>
