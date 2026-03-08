@@ -1,5 +1,8 @@
-// web/js/api.js
-const API_BASE = "http://127.0.0.1:8000";
+// detect environment
+const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+const API_BASE = isLocal ? "http://127.0.0.1:8000" : window.location.origin;
+// If using the Nginx proxy from docker-compose, both are on the same origin (port 8080 or domain)
+// So window.location.origin works well for production.
 
 export async function apiCall(endpoint, method = "GET", body = null) {
     const headers = { "Content-Type": "application/json; charset=utf-8" };
