@@ -153,14 +153,17 @@ def register(req: RegisterReq):
         if not req.email or "@" not in req.email:
             raise HTTPException(status_code=400, detail="E-mail inválido")
             
+        # Bcrypt has a 72-byte limit. We validate this and return 400.
+        password_bytes = len(req.password.encode('utf-8'))
+        if password_bytes > 72:
+            raise HTTPException(status_code=400, detail="Senha muito longa. Por favor, use no máximo 72 caracteres.")
+
         existing = store.get_user_by_email(req.email)
         if existing:
             raise HTTPException(status_code=400, detail="Email já cadastrado")
         
         user_id = str(uuid.uuid4())
-        # Bcrypt has a 72-character limit. Truncate manually to avoid Passlib error.
-        safe_password = req.password[:72]
-        pw_hash = get_password_hash(safe_password)
+        pw_hash = get_password_hash(req.password)
         store.create_user(user_id, req.email, pw_hash, req.full_name)
         
         return {"ok": True, "user_id": user_id}
@@ -173,10 +176,13 @@ def register(req: RegisterReq):
 @app.post("/v1/auth/login")
 def login(req: LoginReq):
     try:
+        # Validate bcrypt length limit first
+        password_bytes = len(req.password.encode('utf-8'))
+        if password_bytes > 72:
+             raise HTTPException(status_code=401, detail="E-mail ou senha inválidos")
+
         user = store.get_user_by_email(req.email)
-        # Match registration truncation for bcrypt compatibility
-        safe_password = req.password[:72]
-        if not user or not verify_password(safe_password, user["password_hash"]):
+        if not user or not verify_password(req.password, user["password_hash"]):
             raise HTTPException(status_code=401, detail="E-mail ou senha inválidos")
         
         token = create_access_token({"sub": user["id"]})

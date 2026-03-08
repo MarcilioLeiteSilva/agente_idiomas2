@@ -166,6 +166,19 @@
             submitBtn.innerText = isLogin ? 'Entrando...' : 'Criando Conta...';
 
             try {
+                // Front-end Validation (Requirement 2 & 3)
+                const passwordBytes = new TextEncoder().encode(password).length;
+
+                if (password.length < 8) {
+                    alert('A senha deve ter pelo menos 8 caracteres.');
+                    return;
+                }
+
+                if (passwordBytes > 72) {
+                    alert('Sua senha é muito longa. Por favor, use uma senha menor (até 32 ou 40 caracteres).');
+                    return;
+                }
+
                 const endpoint = isLogin ? '/v1/auth/login' : '/v1/auth/register';
                 const body = isLogin ? { email, password } : { email, password, full_name: name };
 
