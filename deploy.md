@@ -1,50 +1,54 @@
 # Guia de Deploy - Agente Idiomas v13
 
-Este projeto está pronto para ser deployed usando **Docker**, **Easypanel** ou diretamente em uma **VPS**.
+Este guia descreve como realizar o deploy da aplicação em um servidor VPS usando **Easypanel**.
 
-## 1. Requisitos
-- Servidor com Docker e Docker Compose instalados.
-- Domínio configurado (ex: `seudominio.com`).
+## 🚀 Estrutura do Projeto
+- **Backend**: Python (FastAPI) rodando na porta `8000`.
+- **Frontend**: Nginx (Estático/SPA) rodando na porta `80`.
 
-## 2. Deploy via Docker Compose (VPS Pura)
+## 📦 Deploy no Easypanel
 
-1. Clone o repositório na sua VPS:
-   ```bash
-   git clone <url-do-seu-repo>
-   cd agente-idiomas
-   ```
+### 1. Serviço de Backend
+- **Tipo**: App
+- **Repositório**: Seu repositório do GitHub
+- **Build**:
+  - **Context**: `/` (Raiz do repositório)
+  - **Dockerfile Path**: `backend/Dockerfile`
+- **Networking/Rede**:
+  - **Internal Port**: `8000`
+  - **Domain**: `api.seu-dominio.com` ou o gerado pelo Easypanel.
+- **Variáveis de Ambiente**:
+  - `OPENAI_API_KEY`: Sua chave da OpenAI.
+  - `DB_PATH`: `/app/data/app.db`
+  - `DATABASE_URL`: `sqlite:////app/data/app.db`
+- **Volumes**:
+  - Adicione um volume montando `/app/data` para persistência do banco de dados SQLite.
 
-2. Configure as variáveis de ambiente:
-   ```bash
-   cp .env.example backend/.env
-   nano backend/.env # Adicione sua OPENAI_API_KEY
-   ```
+### 2. Serviço de Frontend
+- **Tipo**: App
+- **Repositório**: Seu repositório do GitHub
+- **Build**:
+  - **Context**: `/` (Raiz do repositório)
+  - **Dockerfile Path**: `frontend/Dockerfile`
+- **Networking/Rede**:
+  - **Internal Port**: `80`
+  - **Domain**: `app.seu-dominio.com` ou o gerado pelo Easypanel.
 
-3. Suba os containers:
-   ```bash
-   docker compose up -d
-   ```
+---
 
-A aplicação estará disponível na porta `8080` (proxy Nginx).
+## 🛠️ Configurações Importantes
 
-## 3. Deploy via Easypanel (Recomendado)
+### Comunicação Frontend -> Backend
+O arquivo `frontend/js/api.js` está configurado para buscar o backend automaticamente. 
+- Se o frontend estiver em `xyz-frontend.gtalg3.easypanel.host`, ele buscará a API em `xyz-backend.gtalg3.easypanel.host`.
+- Caso use domínios customizados, verifique a variável `PROD_API_URL` no arquivo `api.js`.
 
-1. No Easypanel, crie um novo **Projeto**.
-2. Adicione um serviço do tipo **App** para o Backend:
-   - **Source**: GitHub
-   - **Root Directory**: `backend`
-   - **Environment Variables**: Adicione `OPENAI_API_KEY` e `DATABASE_URL=data/app.db`.
-   - **Volume**: Adicione um volume de persistência para `/app/data`.
-   - **Domain**: `api.seudominio.com`.
+### CORS
+O backend está configurado para aceitar requisições de qualquer origem (`allow_origins=["*"]`), garantindo que a comunicação entre subdomínios funcione sem bloqueios.
 
-3. Adicione um serviço do tipo **App** para o Frontend:
-   - **Source**: GitHub
-   - **Root Directory**: `frontend`
-   - **Domain**: `app.seudominio.com`.
+---
 
-## 4. Persistência de Dados
-O banco de dados SQLite é armazenado em `data/app.db`. É CRÍTICO que a pasta `data` seja montada como um volume persistente no Docker para evitar perda de dados em novos deploys.
-
-## 5. Próximos Passos
-- Configurar SSL (Easypanel faz isso automaticamente).
-- Migrar para PostgreSQL (alterando `DATABASE_URL` quando o suporte estiver pronto).
+## ✅ Verificação do Deploy
+Após o deploy, acesse:
+- `https://seu-backend/health` -> Deve retornar `{"ok": true, "version": "v13.9"}`.
+- `https://seu-frontend/` -> Deve carregar a interface do chat.
