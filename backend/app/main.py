@@ -94,7 +94,13 @@ class MessageItem(BaseModel):
 
 class MessageReq(BaseModel):
     session_id: str
-    message: MessageItem
+    message: str # Mudado de MessageItem para string conforme sugestão
+    mode: Optional[str] = "free"
+    scenario: Optional[str] = None
+    evaluation: Optional[bool] = False
+    user_level: Optional[str] = None
+    target_language: Optional[str] = None
+    native_language: Optional[str] = None
     ui_action: Optional[Dict] = None
 
 class SettingsReq(BaseModel):
@@ -274,23 +280,38 @@ def log_execution(endpoint_name):
 
 @app.post("/v1/message")
 def v1_message(req: MessageReq):
+    # Adaptar string para o formato interno esperado pelo handle_message
+    message_dict = {"role": "user", "content": req.message}
     return handle_message(
         store=store,
         session_id=req.session_id,
-        message=req.message.model_dump(),
+        message=message_dict,
         ui_action=req.ui_action if req.ui_action else None,
+        mode=req.mode,
+        scenario=req.scenario,
+        evaluation=req.evaluation,
+        user_level=req.user_level,
+        target_language=req.target_language,
+        native_language=req.native_language
     )
 
 # ✅ NOVO: streaming SSE
 @app.post("/v1/stream")
 def v1_stream(req: MessageReq):
+    message_dict = {"role": "user", "content": req.message}
     def gen():
         try:
             for chunk in handle_message_stream(
                 store=store,
                 session_id=req.session_id,
-                message=req.message.model_dump(),
+                message=message_dict,
                 ui_action=req.ui_action if req.ui_action else None,
+                mode=req.mode,
+                scenario=req.scenario,
+                evaluation=req.evaluation,
+                user_level=req.user_level,
+                target_language=req.target_language,
+                native_language=req.native_language
             ):
                 yield f"data: {json.dumps(chunk, ensure_ascii=False)}\n\n"
         except Exception as e:

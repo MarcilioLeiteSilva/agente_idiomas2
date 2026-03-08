@@ -5,9 +5,16 @@ import json
 from typing import Generator
 from core.provider_openai import OpenAIProvider
 from core.logger import setup_logger
+from services.ai.prompt_router import PromptRouter
+from learning.scoring_engine import ScoringEngine
+from services.memory.memory_service import MemoryService
+from services.ai.recommendation_engine import RecommendationEngine
 
-# Singleton do provider (pode ser trocado por factory no futuro)
+# Singletons
 provider = OpenAIProvider()
+scoring_engine = ScoringEngine()
+memory_service = MemoryService()
+recommendation_engine = RecommendationEngine()
 
 MENU_MAIN = {
     "type": "menu",
@@ -83,7 +90,7 @@ def _lang_hint(lang: str) -> str:
 from learning.lesson_engine import LessonEngine
 lesson_engine = LessonEngine()
 
-def _build_messages(store, session_id: str, user_text: str, lang: str):
+def _build_messages(store, session_id: str, user_text: str, lang: str, mode: str = "free", scenario: str = None, user_level: str = None, target_language: str = None):
     summary = store.get_summary(session_id)
     # ✅ UPDATE (Fase 1 - Passo 9): Include meta and filter
     recent_all = store.get_recent_messages(session_id, limit=20, include_meta=True)
@@ -117,7 +124,22 @@ def _build_messages(store, session_id: str, user_text: str, lang: str):
     # ... (learning memory fetching with normalization awareness)
     learning_mem = store.get_learning_memory(session_id, target_lang)
     
-    base_prompt = _system_prompt()
+    # ✅ REPLACED: Use PromptRouter instead of hardcoded _system_prompt
+    ctx = {
+        "mode": mode,
+        "scenario": scenario,
+        "user_level": user_level or (profile.get("level") if profile else "A1"),
+        "target_language": target_language or (profile.get("target_language") if profile else "en"),
+        "weaknesses": "" # TODO: Extract from learning_mem
+    }
+    
+    # Extract weaknesses for prompt
+    if learning_mem:
+        grammar_items = learning_mem.get("weak_grammar", [])
+        weak_grammar = [g["rule"] for g in grammar_items] if grammar_items and isinstance(grammar_items[0], dict) else grammar_items
+        ctx["weaknesses"] = ", ".join(weak_grammar[:5])
+
+    base_prompt = PromptRouter.build(ctx)
     
     if profile:
         level_instruction = _get_level_instruction(profile.get('level', 'A1'), target_lang)
@@ -287,12 +309,18 @@ def handle_action(store, session_id: str, action_id: str):
     sess = store.get_session(session_id)
     return {"output": {"type": "text", "text": "Ação não reconhecida."}, "state": sess}
 
-def handle_message(store, session_id: str, message: dict, ui_action: dict | None):
+def handle_message(store, session_id: str, message: dict, ui_action: dict | None, 
+                   mode: str = "free", scenario: str = None, evaluation: bool = False,
+                   user_level: str = None, target_language: str = None, native_language: str = None):
     # Fallback para o modo stream se não for uma ação de UI simples
     if ui_action and ui_action.get("action_id"):
         return handle_action(store, session_id, ui_action["action_id"])
     
-    gen = handle_message_stream(store, session_id, message, ui_action)
+    gen = handle_message_stream(
+        store, session_id, message, ui_action,
+        mode=mode, scenario=scenario, evaluation=evaluation,
+        user_level=user_level, target_language=target_language, native_language=native_language
+    )
     last_final = None
     last_error = None
     transcription = None
@@ -313,6 +341,8 @@ def handle_message(store, session_id: str, message: dict, ui_action: dict | None
                     print(f"Erro ao decodificar chunk de áudio: {e}")
         elif ctype == "final":
             last_final = chunk
+        elif ctype == "evaluation_report":
+            return chunk
         elif ctype == "error":
             last_error = chunk
     
@@ -348,7 +378,9 @@ def split_sentences(text: str) -> list[str]:
     sentences = re.split(r'(?<=[.!?])\s+', text)
     return [s.strip() for s in sentences if s.strip()]
 
-def handle_message_stream(store, session_id: str, message: dict, ui_action: dict | None):
+def handle_message_stream(store, session_id: str, message: dict, ui_action: dict | None,
+                          mode: str = "free", scenario: str = None, evaluation: bool = False,
+                          user_level: str = None, target_language: str = None, native_language: str = None):
     from core.logger import setup_logger
     logger = setup_logger("core_openai")
     
@@ -399,7 +431,17 @@ def handle_message_stream(store, session_id: str, message: dict, ui_action: dict
     if lang == "auto":
         lang = detect_lang_simple(user_text)
 
-    messages = _build_messages(store, session_id, user_text, lang)
+    messages = _build_messages(
+        store, session_id, user_text, lang, 
+        mode=mode, scenario=scenario, user_level=user_level, target_language=target_language
+    )
+    
+    # ✅ NOVO: Injetar recomendações na memória se for modo Eval
+    recommendations_data = None
+    if mode == "eval":
+        recommendations_data = recommendation_engine.get_recommendations(session_id, {"user_level": user_level})
+        # Podemos injetar isso como um "Contexto de Recomendação" no prompt via _build_messages se quisermos
+        # Por enquanto, usaremos para enriquecer o JSON final
     full_text = ""
     sentence_buffer = ""
     sentences_processed = 0
@@ -450,8 +492,67 @@ def handle_message_stream(store, session_id: str, message: dict, ui_action: dict
         logger.info("Final audio chunk yielded.")
 
     full_text = full_text.strip() or "(sem resposta)"
+    
+    # ✅ NOVO: Tratamento de Modo Eval (Relatórios JSON)
+    if mode == "eval":
+        try:
+            # Tentar limpar possíveis markdown code blocks do LLM
+            clean_text = full_text.strip()
+            if clean_text.startswith("```json"):
+                clean_text = clean_text.replace("```json", "", 1).replace("```", "", 1).strip()
+            elif clean_text.startswith("```"):
+                clean_text = clean_text.replace("```", "", 2).strip()
+            
+            report = json.loads(clean_text)
+            
+            # ✅ Injetar Recomendações do Engine no Relatório do LLM
+            if recommendations_data:
+                # Merge: Manter o que o LLM sugeriu, mas priorizar o engine para consistência
+                engine_rec = {
+                    "type": recommendations_data["recommended_action"],
+                    "label": f"{recommendations_data['recommended_action'].title()}: {recommendations_data['priority_focus']}"
+                }
+                # Adicionar ao topo das recomendações
+                llm_recs = report.get("recommendations", [])
+                report["recommendations"] = [engine_rec] + llm_recs
+                report["engine_reason"] = recommendations_data["reason"]
+
+            logger.info(f"Evaluation report generated for {session_id}")
+            yield {"type": "evaluation_report", **report, "state": store.get_session(session_id)}
+            return
+        except Exception as e:
+            logger.error(f"Failed to parse evaluation report JSON: {e}. Raw: {full_text}")
+            # Se falhar o parse, envia como texto normal (fallback)
+
     store.add_message(session_id, "user", user_text)
     store.add_message(session_id, "assistant", full_text)
+    
+    # ✅ NOVO: Silent Scoring e Extração de Memória (exceto no modo eval)
+    if mode != "eval" and user_text.strip():
+        try:
+            # Avaliação em background (ou síncrona aqui no final do stream)
+            eval_ctx = {
+                "title": f"Chat Mode: {mode}",
+                "objective": "General practice/Roleplay",
+                "target_vocab": [],
+                "target_grammar": [],
+                "current_step_instruction": "Evaluate natural conversation"
+            }
+            eval_result = scoring_engine.evaluate_response(user_text, eval_ctx, lang)
+            
+            # Processar sinais para a memória v2
+            memory_service.process_interaction_signals(
+                user_id=session_id,
+                source_type="chat",
+                source_id=mode,
+                target_language=lang,
+                user_input=user_text,
+                feedback_text=eval_result.get("feedback_text", "")
+            )
+            logger.info(f"Silent scoring completed for {session_id}")
+        except Exception as e:
+            logger.error(f"Error in silent scoring: {e}")
+
     _maybe_update_summary(store, session_id)
 
     logger.info("Finalizado com sucesso.")
