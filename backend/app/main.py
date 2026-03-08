@@ -23,12 +23,13 @@ logger = setup_logger("agente_idiomas")
 memory_service = MemoryService() # Novo global
 
 
-app = FastAPI(title="Agente Idiomas (Local)")
+# Configuração do FastAPI com suporte a roteamento flexível
+app = FastAPI(title="Agente Idiomas (Local)", redirect_slashes=True)
 
-# CORS (dev local)
+# CORS robusto para produção e desenvolvimento
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"], # Em produção Easypanel, o ideal é o domínio específico, mas "*" garante conectividade inicial
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
