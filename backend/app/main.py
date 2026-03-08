@@ -153,11 +153,11 @@ def register(req: RegisterReq):
         if not req.email or "@" not in req.email:
             raise HTTPException(status_code=400, detail="E-mail inválido")
             
-        # Bcrypt has a 72-byte limit. We validate this and return 400.
-        # some implementations count the null terminator, so we use 72 as absolute limit.
+        # Argon2 has no practical length limit like Bcrypt (max 4GB theoretically)
+        # We set 256 for basic security sanity.
         password_bytes = len(req.password.encode('utf-8'))
-        if password_bytes >= 72:
-            raise HTTPException(status_code=400, detail="Sua senha é muito longa para o sistema (limite de 72 bytes). Por favor, use uma senha menor.")
+        if password_bytes > 256:
+            raise HTTPException(status_code=400, detail="Sua senha é excessivamente longa. Por favor, use no máximo 256 caracteres.")
 
         existing = store.get_user_by_email(req.email)
         if existing:
@@ -177,10 +177,9 @@ def register(req: RegisterReq):
 @app.post("/v1/auth/login")
 def login(req: LoginReq):
     try:
-        # Validate bcrypt length limit first
+        # Relaxed limit for Argon2
         password_bytes = len(req.password.encode('utf-8'))
-        if password_bytes >= 72:
-             # For login, any length check failure should be treated as invalid credentials
+        if password_bytes > 256:
              raise HTTPException(status_code=401, detail="E-mail ou senha inválidos")
 
         user = store.get_user_by_email(req.email)
@@ -206,7 +205,7 @@ def login(req: LoginReq):
 # --- HEALTH & DIAGNOSTICS ---
 @app.get("/health")
 def root_health():
-    return {"ok": True, "version": "v14.5.2-bcrypt-safe"}
+    return {"ok": True, "version": "v15.0-argon2"}
 
 @app.get("/v1/health")
 def v1_health():

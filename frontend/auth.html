@@ -174,8 +174,8 @@
                     return;
                 }
 
-                if (passwordBytes >= 72) {
-                    alert('Sua senha é muito longa para o sistema (limite técnico de 72 bytes). Por favor, use uma senha menor.');
+                if (passwordBytes > 256) {
+                    alert('Sua senha é excessivamente longa. Por favor, use no máximo 256 caracteres.');
                     return;
                 }
 

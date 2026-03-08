@@ -4,5 +4,6 @@ pydantic==2.10.6
 openai==1.70.0
 python-dotenv==1.0.1
 python-multipart
-passlib[bcrypt]
+passlib[bcrypt,argon2]
 python-jose[cryptography]
+argon2-cffi

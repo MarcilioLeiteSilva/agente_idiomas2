@@ -10,7 +10,8 @@ SECRET_KEY = os.getenv("SECRET_KEY", "09d25e094faa6ca2556c818166b7a9563b93f7099f
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7 # 1 week
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Use Argon2 as default (avoids the 72-byte limit of bcrypt)
+pwd_context = CryptContext(schemes=["argon2", "bcrypt"], deprecated="auto")
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
