@@ -26,30 +26,30 @@ memory_service = MemoryService() # Novo global
 # Configuração do FastAPI com suporte a roteamento flexível
 app = FastAPI(title="Agente Idiomas (Local)", redirect_slashes=True)
 
-# Debug middleware to trace CORS
+# Manual Brute-Force CORS Middleware
+from fastapi import Request, Response
+
 @app.middleware("http")
-async def cors_debug(request, call_next):
-    origin = request.headers.get("origin")
-    method = request.method
-    logger.info(f"[CORS-DEBUG] Method: {method}, Path: {request.url.path}, Origin: {origin}")
+async def manual_cors(request: Request, call_next):
+    # Handle OPTIONS preflight
+    if request.method == "OPTIONS":
+        response = Response()
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
+        response.headers["Access-Control-Allow-Headers"] = "*"
+        response.headers["Access-Control-Max-Age"] = "86400"
+        return response
+    
+    # Process request
     response = await call_next(request)
+    
+    # Add CORS to real response
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "*"
     return response
 
-# CORS robusto
-origins = [
-    "https://agente-idiomas2-frontend.gtalg3.easypanel.host",
-    "http://localhost:8000",
-    "http://127.0.0.1:8000",
-    "http://localhost:5173",
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# REMOVIDO CORSMiddleware padrão para evitar conflitos
 
 from fastapi.staticfiles import StaticFiles
 
@@ -126,7 +126,7 @@ def login(req: LoginReq):
 # --- HEALTH & DIAGNOSTICS ---
 @app.get("/health")
 def root_health():
-    return {"ok": True, "version": "v14.1-debug"}
+    return {"ok": True, "version": "v14.2-cors-brute"}
 
 @app.get("/v1/health")
 def v1_health():
