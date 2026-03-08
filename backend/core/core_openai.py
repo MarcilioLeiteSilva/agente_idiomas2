@@ -439,9 +439,11 @@ def handle_message_stream(store, session_id: str, message: dict, ui_action: dict
     # ✅ NOVO: Injetar recomendações na memória se for modo Eval
     recommendations_data = None
     if mode == "eval":
-        recommendations_data = recommendation_engine.get_recommendations(session_id, {"user_level": user_level})
-        # Podemos injetar isso como um "Contexto de Recomendação" no prompt via _build_messages se quisermos
-        # Por enquanto, usaremos para enriquecer o JSON final
+        try:
+            recommendations_data = recommendation_engine.get_recommendations(session_id, {"user_level": user_level})
+        except Exception as e:
+            logger.error(f"Error calling recommendation_engine: {e}")
+            recommendations_data = None
     full_text = ""
     sentence_buffer = ""
     sentences_processed = 0

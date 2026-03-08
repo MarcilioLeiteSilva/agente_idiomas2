@@ -40,5 +40,9 @@ class ScenarioRegistry:
         return ROLEPLAY_SCENARIOS.get(scenario_id, {})
 
     @staticmethod
+    def get_all_scenarios() -> dict:
+        return ROLEPLAY_SCENARIOS
+
+    @staticmethod
     def list_scenarios() -> list:
         return [{"id": k, "title": v["title"], "description": v["description"]} for k, v in ROLEPLAY_SCENARIOS.items()]

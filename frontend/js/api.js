@@ -41,7 +41,15 @@ export async function apiCall(endpoint, method = "GET", body = null) {
             let errorMsg = `API Error ${res.status}: ${text}`;
             try {
                 const json = JSON.parse(text);
-                if (json.detail) errorMsg = json.detail;
+                if (json.detail) {
+                    if (Array.isArray(json.detail)) {
+                        errorMsg = json.detail.map(d => `${d.loc.join('.')}: ${d.msg}`).join(" | ");
+                    } else if (typeof json.detail === 'object') {
+                        errorMsg = JSON.stringify(json.detail);
+                    } else {
+                        errorMsg = json.detail;
+                    }
+                }
             } catch (e) { }
             throw new Error(errorMsg);
         }
