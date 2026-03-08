@@ -71,29 +71,7 @@ function render(stats, progress, preetchedLastItem = null) {
         ? [...progress].sort((a, b) => (b.started_at || "").localeCompare(a.started_at || ""))[0]
         : null);
 
-    // ── Saudação ──────────────────────────────────────────────────────────────
-    const hourNow = new Date().getHours();
-    const greeting = hourNow < 12 ? "Bom dia" : hourNow < 18 ? "Boa tarde" : "Boa noite";
-
-    const greetDiv = document.createElement("div");
-    greetDiv.className = "flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3";
-    greetDiv.innerHTML = `
-        <div>
-            <p class="text-sm text-gray-500 dark:text-gray-400">${greeting},</p>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white capitalize">${name} 👋</h2>
-            <p class="text-sm text-gray-400 mt-0.5">
-                Estudando <strong class="text-gray-600 dark:text-gray-300">${targetLang}</strong>
-                &middot; Nível <strong class="text-gray-600 dark:text-gray-300">${level}</strong>
-            </p>
-        </div>
-        <div class="flex items-center gap-2">
-            <span class="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
-                <span class="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block"></span>
-                ${targetLang}
-            </span>
-        </div>
-    `;
-    container.appendChild(greetDiv);
+    // ── Saudação removida a pedido (para manter apenas no header principal) ───
 
     // ── Cards de Stats ─────────────────────────────────────────────────────────
     const statsData = [
