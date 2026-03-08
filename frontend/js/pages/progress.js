@@ -10,13 +10,14 @@ export async function mount(parent) {
     parent.appendChild(container);
 
     try {
-        const [progressData, memoryData, reviewHistory, statsData] = await Promise.all([
+        const [progressData, memoryData, reviewHistory, statsData, lessonsData] = await Promise.all([
             apiCall(`/v1/progress?user_id=${state.sessionId}`),
             apiCall(`/v1/learning_memory?user_id=${state.sessionId}`),
             apiCall(`/v1/review/history?user_id=${state.sessionId}`),
-            apiCall(`/v1/stats?user_id=${state.sessionId}`)
+            apiCall(`/v1/stats?user_id=${state.sessionId}`),
+            apiCall(`/v1/lessons?user_id=${state.sessionId}`).catch(() => null)
         ]);
-        render(progressData, memoryData, reviewHistory, statsData);
+        render(progressData, memoryData, reviewHistory, statsData, lessonsData);
     } catch (e) {
         container.innerHTML = `<p style="color:red">Erro: ${e.message}</p>`;
     }
@@ -26,34 +27,62 @@ export function unmount() {
     if (container) container.remove();
 }
 
-function render(list, memory, reviews, stats) {
+function render(list, memory, reviews, stats, lessonsData) {
     const completed = list.filter(p => p.status === 'completed');
     const avg = completed.length ? Math.round(completed.reduce((a, b) => a + (b.score || 0), 0) / completed.length) : 0;
 
+    // Mapa: lesson_id -> título real
+    const lessonTitleMap = {};
+    if (lessonsData) {
+        const lessons = Array.isArray(lessonsData) ? lessonsData : (lessonsData.lessons || []);
+        lessons.forEach(l => {
+            const id = l.lesson_id || l.id;
+            if (id) lessonTitleMap[id] = l.title;
+        });
+    }
+
+    // Helper: extrair texto de item que pode ser string ou {word/rule/error: '...', count: N}
+    function extractText(item, fields = ['word', 'rule', 'error', 'item']) {
+        if (typeof item === 'string') return item;
+        if (typeof item === 'object' && item !== null) {
+            for (const f of fields) {
+                if (item[f]) return item[f];
+            }
+            return JSON.stringify(item);
+        }
+        return String(item);
+    }
+
     let weakVocabHTML = "";
-    if (memory && memory.weak_vocab && memory.weak_vocab.length > 0) {
+    if (memory?.weak_vocab?.length > 0) {
         weakVocabHTML = `
             <div class="mb-4">
                 <h4 class="text-sm font-bold text-gray-800 dark:text-gray-200 mb-3">Vocabulário para Revisar</h4>
                 <div class="flex flex-wrap gap-2">
-                    ${memory.weak_vocab.slice(0, 10).map(w => `<span class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-lg text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-500">${w}</span>`).join('')}
+                    ${memory.weak_vocab.slice(0, 10).map(w => {
+            const text = extractText(w, ['word']);
+            const count = typeof w === 'object' ? (w.count || 1) : 1;
+            return `<span class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-lg text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-500" title="${count}x encontrado">${text}</span>`;
+        }).join('')}
                 </div>
             </div>
         `;
     }
 
     let weakGrammarHTML = "";
-    if (memory && memory.weak_grammar && memory.weak_grammar.length > 0) {
+    if (memory?.weak_grammar?.length > 0) {
         weakGrammarHTML = `
             <div class="mb-4">
                 <h4 class="text-sm font-bold text-gray-800 dark:text-gray-200 mb-3">Atenção Gramatical</h4>
                 <ul class="space-y-2">
-                    ${memory.weak_grammar.slice(0, 5).map(g => `
+                    ${memory.weak_grammar.slice(0, 5).map(g => {
+            const text = extractText(g, ['rule']);
+            return `
                         <li class="flex items-center gap-x-2 text-sm text-gray-600 dark:text-gray-400">
-                             <svg class="w-4 h-4 text-amber-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
-                             ${g}
-                        </li>
-                    `).join('')}
+                             <svg class="w-4 h-4 text-amber-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                             ${text}
+                        </li>`;
+        }).join('')}
                 </ul>
             </div>
         `;
@@ -118,7 +147,7 @@ function render(list, memory, reviews, stats) {
                         </div>
                         <div class="grow">
                             <p class="text-xs uppercase tracking-wide text-gray-500">Média</p>
-                            <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200">${avg}/10</h3>
+                            <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200">${avg}<span class="text-sm font-normal text-gray-400">/100</span></h3>
                         </div>
                     </div>
                 </div>
@@ -143,22 +172,30 @@ function render(list, memory, reviews, stats) {
                     <h3 class="text-lg font-bold text-gray-800 dark:text-white">Atividades Recentes</h3>
                     <div class="bg-white border border-gray-200 rounded-2xl overflow-hidden dark:bg-slate-900 dark:border-gray-700">
                         <ul class="divide-y divide-gray-100 dark:divide-gray-800">
-                            ${list.slice(-5).reverse().map(item => `
-                                <li class="p-4 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors">
-                                    <div class="flex justify-between items-center">
-                                        <div>
-                                            <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">${item.lesson_id.replace('.json', '')}</p>
-                                            <p class="text-xs text-gray-500">${new Date(item.started_at).toLocaleDateString()}</p>
+                            ${list.slice(-5).reverse().map(item => {
+        const lessonTitle = lessonTitleMap[item.lesson_id] || item.lesson_id;
+        const langFlag = item.target_language === 'en' ? '🇺🇸' : item.target_language === 'fr' ? '🇫🇷' : item.target_language === 'es' ? '🇪🇸' : '📚';
+        const dateStr = item.started_at ? new Date(item.started_at).toLocaleDateString('pt-BR') : '—';
+        const isCompleted = item.status === 'completed';
+        return `
+                                <li class="px-4 py-3.5 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors">
+                                    <div class="flex justify-between items-center gap-3">
+                                        <div class="flex items-center gap-3 min-w-0">
+                                            <span class="text-lg flex-shrink-0">${langFlag}</span>
+                                            <div class="min-w-0">
+                                                <p class="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">${lessonTitle}</p>
+                                                <p class="text-xs text-gray-400">${dateStr} &middot; <span class="font-mono text-[10px] opacity-60">${item.lesson_id}</span></p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            ${item.status === 'completed'
-            ? `<span class="inline-flex items-center gap-x-1 py-1 px-2 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-500">Nota ${item.score}</span>`
-            : `<span class="inline-flex items-center gap-x-1 py-1 px-2 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-500">Incompleta</span>`
-        }
+                                        <div class="flex-shrink-0">
+                                            ${isCompleted
+                ? `<span class="inline-flex items-center gap-x-1 py-1 px-2.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-500">✓ ${item.score}</span>`
+                : `<span class="inline-flex items-center gap-x-1 py-1 px-2.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-500">Incompleta</span>`
+            }
                                         </div>
                                     </div>
-                                </li>
-                            `).join('')}
+                                </li>`;
+    }).join('')}
                             ${list.length === 0 ? '<li class="p-8 text-center text-gray-500">Nenhuma lição no histórico.</li>' : ''}
                         </ul>
                     </div>
