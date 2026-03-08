@@ -449,30 +449,51 @@ class LessonStartReq(BaseModel):
 @app.post("/v1/lesson/start")
 @log_execution("v1_lesson_start")
 def v1_lesson_start(req: LessonStartReq):
-    # 1. Identificar detalhes da lição pelo ID (assumindo prefixo ou busca global)
+    logger.info(f"[lesson/start] user_id={req.user_id}, lesson_id={req.lesson_id}")
+    logger.info(f"[lesson/start] lessons_dir={lesson_engine.lessons_dir}, exists={lesson_engine.lessons_dir.exists()}")
+
+    # 1. Inferir idioma do prefixo do lesson_id (ex: "en_a1_01" → "en")
     parts = req.lesson_id.split("_")
-    if len(parts) >= 2:
-        target_lang = parts[0]
-        lesson = lesson_engine.get_lesson_by_id(target_lang, req.lesson_id)
-    else:
-        target_lang = "en"
-        lesson = lesson_engine.get_lesson_by_id("en", req.lesson_id)
+    target_lang = parts[0] if len(parts) >= 2 else "en"
+
+    lesson = lesson_engine.get_lesson_by_id(target_lang, req.lesson_id)
+    logger.info(f"[lesson/start] target_lang={target_lang}, found={lesson is not None}")
+
+    # 2. Busca global: se não achou, tenta outros idiomas disponíveis
+    if not lesson:
+        lang_parent = lesson_engine.lessons_dir
+        if lang_parent.exists():
+            other_langs = [d.name for d in lang_parent.iterdir() if d.is_dir() and d.name != target_lang]
+            logger.warning(f"[lesson/start] Not found in '{target_lang}', trying: {other_langs}")
+            for lang in other_langs:
+                lesson = lesson_engine.get_lesson_by_id(lang, req.lesson_id)
+                if lesson:
+                    target_lang = lang
+                    logger.info(f"[lesson/start] Found via fallback lang={lang}")
+                    break
 
     if not lesson:
+        logger.error(f"[lesson/start] Lesson '{req.lesson_id}' not found in any language. lessons_dir={lesson_engine.lessons_dir}")
         return {"error": "Lesson not found"}
-        
-    level = "A1" 
-    if "_a1_" in req.lesson_id: level = "A1"
-    elif "_a2_" in req.lesson_id: level = "A2"
-    elif "_b1_" in req.lesson_id: level = "B1"
-    
+
+    # 3. Inferir nível do lesson_id
+    level = "A1"
+    lid_lower = req.lesson_id.lower()
+    if "_a2_" in lid_lower or lid_lower.endswith("_a2"): level = "A2"
+    elif "_a1_" in lid_lower or lid_lower.endswith("_a1"): level = "A1"
+    elif "_b2_" in lid_lower or lid_lower.endswith("_b2"): level = "B2"
+    elif "_b1_" in lid_lower or lid_lower.endswith("_b1"): level = "B1"
+    elif "_c1_" in lid_lower or lid_lower.endswith("_c1"): level = "C1"
+    elif "_c2_" in lid_lower or lid_lower.endswith("_c2"): level = "C2"
+
     store.start_lesson(req.user_id, req.lesson_id, target_lang, level)
-    
+
     return {
         "status": "started",
-        "lesson": lesson, 
+        "lesson": lesson,
         "first_step": lesson.get("script_steps", [])[0] if lesson.get("script_steps") else "Start!"
     }
+
 
 class LessonNextReq(BaseModel):
     user_id: str

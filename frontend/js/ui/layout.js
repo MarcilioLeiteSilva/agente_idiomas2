@@ -1,4 +1,5 @@
 // web/js/ui/layout.js
+import { state } from "../state.js";
 
 export function renderLayout() {
   const app = document.getElementById("app");
@@ -101,9 +102,9 @@ export function renderLayout() {
           <p class="mt-2 text-lg text-gray-600 dark:text-gray-400">Bem-vindo de volta, <span id="userNameDisplay" class="font-semibold text-gray-800 dark:text-gray-200">Estudante</span>.</p>
         </div>
         <div class="flex items-center gap-2">
-           <span class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-800/30 dark:text-blue-500">
+           <span id="userLevelDisplay" class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-800/30 dark:text-blue-500">
             <span class="w-1.5 h-1.5 inline-block rounded-full bg-blue-800 dark:bg-blue-500"></span>
-            Nível: Intermediário
+            Nível: ${state.userProfile?.level || 'Básico'}
           </span>
         </div>
       </header>

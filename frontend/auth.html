@@ -145,8 +145,9 @@
                     if (data.access_token) {
                         localStorage.setItem('access_token', data.access_token);
                         localStorage.setItem('user_email', email);
-                        setSessionId(email);
-                        alert('Login realizado com sucesso!');
+                        // Usar o user_id real (UUID) retornado pelo backend, não o email
+                        const realUserId = data.user?.id || email;
+                        setSessionId(realUserId);
                         window.location.href = 'dashboard.html';
                     }
                 } else {

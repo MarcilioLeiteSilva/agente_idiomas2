@@ -178,14 +178,40 @@ async function save() {
     setSessionId(newSession);
     setUserProfile({ native_language: nat, target_language: tgt, level: lvl });
 
+    let hasError = false;
+
+    // 1. Salvar perfil de aprendizado no backend (idioma, nível)
+    try {
+        await apiCall("/v1/profile", "POST", {
+            user_id: newSession,
+            native_language: nat,
+            target_language: tgt,
+            level: lvl,
+            correction_style: "moderado"
+        });
+    } catch (e) {
+        hasError = true;
+        showToast("Erro ao salvar perfil: " + e.message, "error");
+    }
+
+    // 2. Salvar configurações de sessão (output_mode, language)
     try {
         await apiCall("/v1/settings", "POST", {
             session_id: newSession,
             output_mode: "text",
             language: tgt
         });
-        showToast("Perfil atualizado com sucesso!", "success");
     } catch (e) {
+        hasError = true;
         showToast("Erro ao persistir configurações: " + e.message, "error");
+    }
+
+    if (!hasError) {
+        // Atualizar badge de nível no header
+        const levelDisplay = document.getElementById("userLevelDisplay");
+        if (levelDisplay) {
+            levelDisplay.innerHTML = `<span class="w-1.5 h-1.5 inline-block rounded-full bg-blue-800 dark:bg-blue-500"></span> Nível: ${lvl}`;
+        }
+        showToast("Perfil atualizado com sucesso!", "success");
     }
 }

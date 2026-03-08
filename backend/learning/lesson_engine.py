@@ -3,55 +3,67 @@ import os
 from pathlib import Path
 
 class LessonEngine:
-    def __init__(self, lessons_dir="learning/lessons"):
-        self.lessons_dir = Path(lessons_dir)
-        self._cache = {} # Key: (target_language, level), Value: {'data': dict, 'mtime': float, 'loaded_at': float}
+    def __init__(self, lessons_dir=None):
+        if lessons_dir is None:
+            # Caminho absoluto relativo a este arquivo: backend/learning/lessons/
+            # Robusto em qualquer CWD (Docker, local, CI)
+            self.lessons_dir = Path(__file__).resolve().parent / "lessons"
+        else:
+            p = Path(lessons_dir)
+            self.lessons_dir = p if p.is_absolute() else Path(__file__).resolve().parent / lessons_dir
+        self._cache = {}  # Key: (target_language, level_key), Value: {'data': dict, 'mtime': float, 'loaded_at': float}
+
+    # Mapeamento centralizado (reutilizado por load_lessons e get_lesson_by_id)
+    LEVEL_MAP = {
+        # Português (vindo do frontend: onboarding, settings)
+        "básico":        "a1",
+        "intermediário": "b1",
+        "avançado":      "c1",
+        # Inglês (fallback)
+        "basic":         "a1",
+        "intermediate":  "b1",
+        "advanced":      "c1",
+        # Técnico direto
+        "a1": "a1",
+        "a2": "a2",
+        "b1": "b1",
+        "b2": "b2",
+        "c1": "c1",
+        "c2": "c2",
+    }
 
     def load_lessons(self, target_language: str, level: str) -> dict:
         """Load lessons from JSON catalog with caching."""
         if not target_language or not level:
-             return {"error": "Missing parameters"}
-             
-        # Mapping for user-friendly levels to technical filenames
-        level_map = {
-            "básico": "a1",
-            "intermediário": "b1",
-            "avançado": "c1",
-            "a1": "a1",
-            "b1": "b1",
-            "c1": "c1"
-        }
-        
-        mapped_level = level_map.get(level.lower(), level.lower())
+            return {"error": "Missing parameters"}
+
+        mapped_level = self.LEVEL_MAP.get(level.lower(), level.lower())
         file_path = self.lessons_dir / target_language.lower() / f"{mapped_level}.json"
-        
+
         if not file_path.exists():
             return {"error": "Catalog not found", "path": str(file_path)}
-            
+
         # Cache Check
         import time
         current_mtime = 0
         try:
             current_mtime = file_path.stat().st_mtime
         except Exception:
-            pass # Should not happen if exists() was true, but race condition possible
-            
-        key = (target_language, level)
+            pass
+
+        key = (target_language.lower(), mapped_level)
         cached = self._cache.get(key)
         now = time.time()
-        
+
         if cached:
-            # Valid if mtime matches (file hasn't changed) 
-            # OR if mtime is 0/unavailable check TTL (300s)
             is_valid = False
             if current_mtime > 0:
-                if abs(current_mtime - cached["mtime"]) < 0.001: 
+                if abs(current_mtime - cached["mtime"]) < 0.001:
                     is_valid = True
             else:
-                # Fallback TTL
                 if (now - cached["loaded_at"]) < 300:
                     is_valid = True
-            
+
             if is_valid:
                 return cached["data"]
 
@@ -59,8 +71,7 @@ class LessonEngine:
         try:
             with open(file_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
-            
-            # Update Cache
+
             self._cache[key] = {
                 "data": data,
                 "mtime": current_mtime,
@@ -72,23 +83,30 @@ class LessonEngine:
 
     def get_lesson_by_id(self, target_language: str, lesson_id: str):
         """Find a specific lesson in the catalog using cached load if possible."""
-        # Optimization: We know valid levels are A1, A2, B1, B2. 
-        # Instead of globbing, we can iterate these standard levels to use the cache.
-        # If files don't exist, load_lessons handles it gracefully (returns error dict).
-        
-        levels = ["A1", "A2", "B1", "B2"]
-        
-        for level in levels:
-            # Use self.load_lessons to benefit from cache
+        # Iteramos todos os níveis padrão existentes
+        standard_levels = ["A1", "A2", "B1", "B2", "C1", "C2"]
+
+        for level in standard_levels:
             catalog = self.load_lessons(target_language, level)
             if "lessons" in catalog:
                 for lesson in catalog["lessons"]:
-                    # Suportar tanto 'id' quanto 'lesson_id' do JSON
                     actual_id = lesson.get("id") or lesson.get("lesson_id")
                     if actual_id == lesson_id:
                         return lesson
-            # Fallback for "error" return or dict without "lessons" list
-            
-        # Fallback: scan directory for non-standard levels? 
-        # For this phase, standard levels are sufficient.
+
+        # Fallback: scan de todos os arquivos JSON do idioma
+        lang_dir = self.lessons_dir / target_language.lower()
+        if lang_dir.exists() and lang_dir.is_dir():
+            for json_file in lang_dir.glob("*.json"):
+                try:
+                    with open(json_file, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                    if "lessons" in data:
+                        for lesson in data["lessons"]:
+                            actual_id = lesson.get("id") or lesson.get("lesson_id")
+                            if actual_id == lesson_id:
+                                return lesson
+                except Exception:
+                    continue
+
         return None
