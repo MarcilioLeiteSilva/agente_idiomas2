@@ -4,11 +4,11 @@
     --primary-light: #b066ff;
     --secondary: #00d2ff;
     --accent: #ff00c8;
-    --bg-dark: #0f172a;
-    --bg-surface: rgba(30, 41, 59, 0.7);
-    --text-main: #f8fafc;
-    --text-muted: #94a3b8;
-    --border: rgba(148, 163, 184, 0.2);
+    --bg-dark: #f8fafc;
+    --bg-surface: rgba(255, 255, 255, 0.9);
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --border: rgba(0, 0, 0, 0.08);
     --success: #10b981;
     --error: #ef4444;
 
@@ -303,9 +303,11 @@ h3 {
 
 .msg.bot {
     align-self: flex-start;
-    background: var(--bg-surface);
+    background: white;
     border: 1px solid var(--border);
     border-bottom-left-radius: 4px;
+    box-shadow: var(--shadow-sm);
+    color: var(--text-main);
 }
 
 .msg.sys {
@@ -336,7 +338,7 @@ h3 {
     flex-grow: 1;
     background: transparent;
     border: none;
-    color: white;
+    color: var(--text-main);
     padding: 8px 12px;
     font-size: 1rem;
 }

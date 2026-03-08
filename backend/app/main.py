@@ -101,6 +101,7 @@ class MessageReq(BaseModel):
     user_level: Optional[str] = None
     target_language: Optional[str] = None
     native_language: Optional[str] = None
+    output_mode: Optional[str] = None # 'text' ou 'audio'
     ui_action: Optional[Dict] = None
 
 class SettingsReq(BaseModel):
@@ -295,7 +296,8 @@ def v1_message(req: MessageReq):
         evaluation=req.evaluation,
         user_level=req.user_level,
         target_language=req.target_language,
-        native_language=req.native_language
+        native_language=req.native_language,
+        output_mode=req.output_mode
     )
 
 # ✅ NOVO: streaming SSE
@@ -317,7 +319,8 @@ def v1_stream(req: MessageReq):
                 evaluation=req.evaluation,
                 user_level=req.user_level,
                 target_language=req.target_language,
-                native_language=req.native_language
+                native_language=req.native_language,
+                output_mode=req.output_mode
             ):
                 yield f"data: {json.dumps(chunk, ensure_ascii=False)}\n\n"
         except Exception as e:

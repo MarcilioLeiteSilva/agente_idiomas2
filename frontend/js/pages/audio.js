@@ -188,7 +188,8 @@ async function sendAudio() {
         try {
             const res = await apiCall("/v1/message", "POST", {
                 session_id: state.sessionId,
-                message: { type: "audio", audio: { mime: "audio/webm", base64: b64 } }
+                message: { type: "audio", audio: { mime: "audio/webm", base64: b64 } },
+                output_mode: "audio"
             });
             handleResponse(res);
         } catch (e) {

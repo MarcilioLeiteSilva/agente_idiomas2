@@ -311,7 +311,8 @@ def handle_action(store, session_id: str, action_id: str):
 
 def handle_message(store, session_id: str, message: dict, ui_action: dict | None, 
                    mode: str = "free", scenario: str = None, evaluation: bool = False,
-                   user_level: str = None, target_language: str = None, native_language: str = None):
+                   user_level: str = None, target_language: str = None, native_language: str = None,
+                   output_mode: str = None):
     # Fallback para o modo stream se não for uma ação de UI simples
     if ui_action and ui_action.get("action_id"):
         return handle_action(store, session_id, ui_action["action_id"])
@@ -319,7 +320,8 @@ def handle_message(store, session_id: str, message: dict, ui_action: dict | None
     gen = handle_message_stream(
         store, session_id, message, ui_action,
         mode=mode, scenario=scenario, evaluation=evaluation,
-        user_level=user_level, target_language=target_language, native_language=native_language
+        user_level=user_level, target_language=target_language, native_language=native_language,
+        output_mode=output_mode
     )
     last_final = None
     last_error = None
@@ -380,7 +382,8 @@ def split_sentences(text: str) -> list[str]:
 
 def handle_message_stream(store, session_id: str, message: dict, ui_action: dict | None,
                           mode: str = "free", scenario: str = None, evaluation: bool = False,
-                          user_level: str = None, target_language: str = None, native_language: str = None):
+                          user_level: str = None, target_language: str = None, native_language: str = None,
+                          output_mode: str = None):
     from core.logger import setup_logger
     logger = setup_logger("core_openai")
     
@@ -394,7 +397,9 @@ def handle_message_stream(store, session_id: str, message: dict, ui_action: dict
     #     return
 
     sess = store.get_session(session_id)
-    logger.info(f"Sessão: {session_id} | Modo: {sess['output_mode']} (Créditos desativados)")
+    # Sobrescrever output_mode se passado na requisição
+    effective_output_mode = output_mode or sess.get("output_mode", "text")
+    logger.info(f"Sessão: {session_id} | Modo Saída: {effective_output_mode} | Modo Chat: {mode}")
 
     if ui_action and ui_action.get("action_id"):
         logger.info(f"Ação UI: {ui_action.get('action_id')}")
@@ -460,7 +465,7 @@ def handle_message_stream(store, session_id: str, message: dict, ui_action: dict
                     yield {"type": "delta", "text": delta_val}
                 
                 # Sentence-Streaming TTS
-                if sess["output_mode"] == "audio":
+                if effective_output_mode == "audio":
                     logger.info(f"Modo áudio ativo. Buffer atual: '{sentence_buffer}'")
                     # Busca pontuação final (.) (!) (?) seguido ou não de espaço
                     if any(p in sentence_buffer for p in ".!?"):
@@ -486,7 +491,7 @@ def handle_message_stream(store, session_id: str, message: dict, ui_action: dict
         return
 
     # Processa o que restou no buffer de sentenças
-    if sess["output_mode"] == "audio" and sentence_buffer.strip():
+    if effective_output_mode == "audio" and sentence_buffer.strip():
         logger.info(f"Gerando áudio final (TTS) para: '{sentence_buffer.strip()}'")
         audio_out = provider.tts(sentence_buffer.strip())
         yield {"type": "audio_chunk", "audio": audio_out, "index": sentences_processed}
