@@ -1,17 +1,20 @@
-// detect environment
+// Configuração de API
 const host = window.location.hostname;
 const isLocal = host === "localhost" || host === "127.0.0.1";
 
-let API_BASE = isLocal ? "http://127.0.0.1:8000" : window.location.origin;
+// URL do Backend no Easypanel (Ajuste fixo para garantir deploy)
+const PROD_API_URL = "https://api.agente-idiomas2-backend.gtalg3.easypanel.host";
 
-if (!isLocal) {
-    // If the hostname starts with 'app.', swap it for 'api.'
+let API_BASE = isLocal ? "http://127.0.0.1:8000" : PROD_API_URL;
+
+// Fallback dinâmico caso o domínio mude
+if (!isLocal && host !== "api.agente-idiomas2-backend.gtalg3.easypanel.host") {
     if (host.startsWith("app.")) {
         API_BASE = window.location.origin.replace("://app.", "://api.");
     }
 }
 
-console.log(`[API_BASE DETECTED]: ${API_BASE}`);
+console.warn(`[AGENTE IDIOMAS] API_BASE: ${API_BASE}`);
 
 export async function apiCall(endpoint, method = "GET", body = null) {
     const headers = { "Content-Type": "application/json; charset=utf-8" };
