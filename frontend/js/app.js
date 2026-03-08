@@ -55,7 +55,7 @@ async function init() {
         const email = localStorage.getItem("user_email") || state.sessionId;
         const profile = await apiCall(`/v1/profile?user_id=${email}`);
 
-        if (profile) {
+        if (profile && !profile.error) {
             setUserProfile(profile);
             // Update User Name in Sidebar
             const userDisplay = document.getElementById("userNameDisplay");
@@ -64,6 +64,7 @@ async function init() {
             }
             navigate("lessons");
         } else {
+            console.log("Profile missing, redirecting to onboarding");
             navigate("onboarding");
         }
     } catch (e) {
