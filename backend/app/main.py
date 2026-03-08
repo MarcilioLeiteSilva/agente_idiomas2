@@ -29,8 +29,8 @@ app = FastAPI(title="Agente Idiomas (Local)", redirect_slashes=True)
 # CORS robusto para produção e desenvolvimento
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Em produção Easypanel, o ideal é o domínio específico, mas "*" garante conectividade inicial
-    allow_credentials=True,
+    allow_origins=["*"], 
+    allow_credentials=False, # Alterado para False para compatibilidade total com wildcard "*"
     allow_methods=["*"],
     allow_headers=["*"],
 )
