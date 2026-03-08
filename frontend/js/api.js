@@ -44,13 +44,15 @@ export async function apiCall(endpoint, method = "GET", body = null) {
                 if (json.detail) {
                     if (Array.isArray(json.detail)) {
                         errorMsg = json.detail.map(d => `${d.loc.join('.')}: ${d.msg}`).join(" | ");
-                    } else if (typeof json.detail === 'object') {
+                    } else if (typeof json.detail === 'object' && json.detail !== null) {
                         errorMsg = JSON.stringify(json.detail);
                     } else {
-                        errorMsg = json.detail;
+                        errorMsg = String(json.detail);
                     }
                 }
-            } catch (e) { }
+            } catch (e) {
+                console.error("[API Error Parse Fallback]", e);
+            }
             throw new Error(errorMsg);
         }
 

@@ -1,6 +1,6 @@
-// web/js/app.js
 import { renderLayout, setActiveNav } from "./ui/layout.js";
-import { state, clearState } from "./state.js";
+import { state, clearState, setUserProfile } from "./state.js";
+import { apiCall } from "./api.js";
 import * as PageText from "./pages/text.js";
 import * as PageAudio from "./pages/audio.js";
 import * as PageInterp from "./pages/interpreter.js";

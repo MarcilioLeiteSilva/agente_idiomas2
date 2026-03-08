@@ -94,7 +94,7 @@ class MessageItem(BaseModel):
 
 class MessageReq(BaseModel):
     session_id: str
-    message: str # Mudado de MessageItem para string conforme sugestão
+    message: Any # Suporta string (texto direto) ou dict (áudio/complexo)
     mode: Optional[str] = "free"
     scenario: Optional[str] = None
     evaluation: Optional[bool] = False
@@ -280,12 +280,15 @@ def log_execution(endpoint_name):
 
 @app.post("/v1/message")
 def v1_message(req: MessageReq):
-    # Adaptar string para o formato interno esperado pelo handle_message
-    message_dict = {"role": "user", "content": req.message}
+    # Padronizar entrada: se for string vira objeto de texto, se já for dict segue direto
+    msg_input = req.message
+    if isinstance(msg_input, str):
+        msg_input = {"type": "text", "text": msg_input}
+    
     return handle_message(
         store=store,
         session_id=req.session_id,
-        message=message_dict,
+        message=msg_input,
         ui_action=req.ui_action if req.ui_action else None,
         mode=req.mode,
         scenario=req.scenario,
@@ -298,13 +301,16 @@ def v1_message(req: MessageReq):
 # ✅ NOVO: streaming SSE
 @app.post("/v1/stream")
 def v1_stream(req: MessageReq):
-    message_dict = {"role": "user", "content": req.message}
+    msg_input = req.message
+    if isinstance(msg_input, str):
+        msg_input = {"type": "text", "text": msg_input}
+
     def gen():
         try:
             for chunk in handle_message_stream(
                 store=store,
                 session_id=req.session_id,
-                message=message_dict,
+                message=msg_input,
                 ui_action=req.ui_action if req.ui_action else None,
                 mode=req.mode,
                 scenario=req.scenario,
