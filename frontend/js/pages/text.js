@@ -30,7 +30,7 @@ export function mount(parent) {
 
             <!-- Chat Log -->
             <div class="flex-1 overflow-y-auto p-4 space-y-4" id="textLog">
-                <div class="max-w-[85%] flex flex-col items-center justify-center h-full mx-auto text-center">
+                <div id="textEmptyState" class="max-w-[85%] flex flex-col items-center justify-center h-full mx-auto text-center">
                     <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4 dark:bg-blue-900/30">
                         <svg class="w-8 h-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                     </div>
@@ -263,8 +263,9 @@ function appendMsg(role, text, cls) {
     const log = document.getElementById("textLog");
     if (!log) return;
 
-    // Remove empty state message or old single-message if exists
-    if (log.querySelector('.max-w-\\[85\\%\\]') || log.querySelector('.text-slate-500')) {
+    // Remove empty state message if exists
+    const emptyState = log.querySelector('#textEmptyState');
+    if (emptyState) {
         log.innerHTML = '';
     }
 
