@@ -90,8 +90,7 @@ function render(list, memory, reviews, stats, lessonsData) {
 
     container.innerHTML = `
         <div class="space-y-8">
-            <div class="flex items-center justify-between">
-                <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Meu Progresso</h2>
+            <div class="flex items-center justify-between xl:justify-end">
                 <button class="py-2 px-4 inline-flex items-center gap-x-2 text-sm font-semibold rounded-xl bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition-all shadow-md" onclick="startMicroReview('${state.sessionId}')">
                     <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 14 4-4-4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>
                     Treinar Pontos Fracos

@@ -14,7 +14,6 @@ export function mount(parent) {
     container.innerHTML = `
         <div class="max-w-4xl mx-auto space-y-6">
             <div class="mb-4 text-center md:text-left">
-                <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Intérprete Bilíngue</h2>
                 <p class="text-sm text-gray-600 dark:text-gray-400">Tradução e voz em tempo real para diálogos rápidos.</p>
             </div>
 

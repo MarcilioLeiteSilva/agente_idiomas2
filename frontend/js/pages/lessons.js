@@ -155,7 +155,6 @@ function renderCatalog(data, rec) {
     header.innerHTML = `
         <div class="flex items-center justify-between">
             <div>
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Trilhas de Aprendizado</h2>
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Lições estruturadas para evoluir no seu ritmo.</p>
             </div>
             <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
@@ -557,8 +556,8 @@ function appendMsg(role, text, cls, html = null) {
         // Bubble container
         const bubble = document.createElement("div");
         bubble.className = `max-w-[75%] ${isMe
-                ? "bg-blue-600 text-white rounded-2xl rounded-tr-sm shadow-sm shadow-blue-500/20"
-                : "bg-white dark:bg-slate-800 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-2xl rounded-tl-sm shadow-sm"
+            ? "bg-blue-600 text-white rounded-2xl rounded-tr-sm shadow-sm shadow-blue-500/20"
+            : "bg-white dark:bg-slate-800 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-2xl rounded-tl-sm shadow-sm"
             } px-4 py-3`;
 
         // Texto formatado

@@ -7,7 +7,7 @@ let container = null;
 
 export async function mount(parent) {
     container = document.createElement("div");
-    container.innerHTML = `<h2>Configurações</h2><p>Carregando...</p>`;
+    container.innerHTML = `<p>Carregando...</p>`;
     parent.appendChild(container);
 
     // Fetch current profile
@@ -27,7 +27,6 @@ export function unmount() {
 function render() {
     container.innerHTML = `
         <div class="max-w-4xl mx-auto space-y-6">
-            <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Configurações</h2>
             
             <div class="grid md:grid-cols-2 gap-6">
                 <!-- Perfil Card -->
