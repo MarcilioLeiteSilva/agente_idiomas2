@@ -105,7 +105,7 @@ export function renderLayout() {
       <header class="flex items-center justify-between mb-8">
         <div>
           <h1 id="pageTitle" class="block text-2xl font-bold text-gray-800 sm:text-3xl dark:text-white">Dashboard</h1>
-          <p class="mt-2 text-lg text-gray-600 dark:text-gray-400">Bem-vindo de volta, <span id="userNameDisplay" class="font-semibold text-gray-800 dark:text-gray-200">Estudante</span>.</p>
+          <p id="pageSubtitle" class="mt-2 text-lg text-gray-600 dark:text-gray-400">Bem-vindo de volta, <span id="userNameDisplay" class="font-semibold text-gray-800 dark:text-gray-200">Estudante</span>.</p>
         </div>
         <div class="flex items-center gap-2">
            <span id="userLevelDisplay" class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-800/30 dark:text-blue-500">

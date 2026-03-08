@@ -73,9 +73,14 @@ async function init() {
         if (profile && !profile.error) {
             setUserProfile(profile);
             // Update User Name in Sidebar
-            const userDisplay = document.getElementById("userNameDisplay");
-            if (userDisplay) {
-                userDisplay.innerText = profile.full_name || email.split("@")[0];
+            const subtitleEl = document.getElementById("pageSubtitle");
+            const name = profile.full_name || localStorage.getItem("user_name");
+            if (subtitleEl) {
+                if (name && name.trim().length > 0) {
+                    subtitleEl.innerHTML = `Bem-vindo de volta, <span id="userNameDisplay" class="font-semibold text-gray-800 dark:text-gray-200">${name}</span>.`;
+                } else {
+                    subtitleEl.innerHTML = `Bem-vindo de volta!`;
+                }
             }
             navigate("dashboard");
         } else {
@@ -103,6 +108,11 @@ export function navigate(pageId) {
     // Atualiza título da seção no header
     const titleEl = document.getElementById("pageTitle");
     if (titleEl) titleEl.textContent = PAGE_TITLES[pageId] || pageId;
+
+    const subtitleEl = document.getElementById("pageSubtitle");
+    if (subtitleEl) {
+        subtitleEl.style.display = pageId === "dashboard" ? "block" : "none";
+    }
 
     // Mount new page
     const main = document.getElementById("mainContent");
