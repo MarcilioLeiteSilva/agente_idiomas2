@@ -83,7 +83,9 @@ class LessonEngine:
             catalog = self.load_lessons(target_language, level)
             if "lessons" in catalog:
                 for lesson in catalog["lessons"]:
-                    if lesson.get("id") == lesson_id: # Note: schema uses "id", verify below if it was "lesson_id"
+                    # Suportar tanto 'id' quanto 'lesson_id' do JSON
+                    actual_id = lesson.get("id") or lesson.get("lesson_id")
+                    if actual_id == lesson_id:
                         return lesson
             # Fallback for "error" return or dict without "lessons" list
             
