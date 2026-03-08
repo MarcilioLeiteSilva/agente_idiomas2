@@ -158,7 +158,9 @@ def register(req: RegisterReq):
             raise HTTPException(status_code=400, detail="Email já cadastrado")
         
         user_id = str(uuid.uuid4())
-        pw_hash = get_password_hash(req.password)
+        # Bcrypt has a 72-character limit. Truncate manually to avoid Passlib error.
+        safe_password = req.password[:72]
+        pw_hash = get_password_hash(safe_password)
         store.create_user(user_id, req.email, pw_hash, req.full_name)
         
         return {"ok": True, "user_id": user_id}
@@ -172,7 +174,9 @@ def register(req: RegisterReq):
 def login(req: LoginReq):
     try:
         user = store.get_user_by_email(req.email)
-        if not user or not verify_password(req.password, user["password_hash"]):
+        # Match registration truncation for bcrypt compatibility
+        safe_password = req.password[:72]
+        if not user or not verify_password(safe_password, user["password_hash"]):
             raise HTTPException(status_code=401, detail="E-mail ou senha inválidos")
         
         token = create_access_token({"sub": user["id"]})
@@ -194,7 +198,7 @@ def login(req: LoginReq):
 # --- HEALTH & DIAGNOSTICS ---
 @app.get("/health")
 def root_health():
-    return {"ok": True, "version": "v14.3-fix-500"}
+    return {"ok": True, "version": "v14.4-bcrypt-fix"}
 
 @app.get("/v1/health")
 def v1_health():
