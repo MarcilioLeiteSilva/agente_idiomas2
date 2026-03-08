@@ -9,37 +9,44 @@ export function mount(parent) {
     container = document.createElement("div");
     container.className = "flex flex-col h-full gap-4 p-4";
     container.innerHTML = `
-        <div class="flex items-center gap-2 mb-2 p-1 bg-white/5 rounded-2xl w-fit">
-            <button class="mode-tag px-4 py-1.5 rounded-xl text-sm font-medium transition-all hover:bg-white/10 active:scale-95" data-mode="free">Chat Livre</button>
-            <button class="mode-tag px-4 py-1.5 rounded-xl text-sm font-medium transition-all hover:bg-white/10 active:scale-95 opacity-50" data-mode="roleplay">Roleplay</button>
-            <button class="mode-tag px-4 py-1.5 rounded-xl text-sm font-medium transition-all hover:bg-white/10 active:scale-95 opacity-50" data-mode="eval">Avaliação</button>
-        </div>
-        
-        <div class="flex-1 overflow-y-auto space-y-4 px-2 custom-scrollbar" id="textLog">
-            <div class="flex flex-col items-center justify-center h-full text-slate-500 opacity-50 space-y-2">
-                <i data-lucide="message-square-dashed" class="w-12 h-12"></i>
-                <p class="text-sm">Inicie uma conversa para começar a praticar!</p>
+        <div class="flex flex-col h-[calc(100vh-14rem)] bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-slate-900 dark:border-gray-700">
+            <!-- Header/Modes -->
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                <div class="inline-flex p-1 bg-gray-100 rounded-lg dark:bg-slate-800">
+                    <button class="mode-tag py-1 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-md text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white" data-mode="free">
+                        Livre
+                    </button>
+                    <button class="mode-tag py-1 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-md text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white" data-mode="roleplay">
+                        Roleplay
+                    </button>
+                    <button class="mode-tag py-1 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-md text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white" data-mode="eval">
+                        Avaliação
+                    </button>
+                </div>
+                <button id="clearTextBtn" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-white dark:hover:bg-gray-800">
+                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                </button>
             </div>
-        </div>
 
-        <div class="mt-auto space-y-3">
-            <div class="flex items-center gap-3 p-3 bg-slate-900/80 border border-slate-800 rounded-3xl shadow-xl focus-within:border-violet-500/50 transition-all">
-                <input id="textInput" 
-                    placeholder="Escreva algo em inglês ou francês..." 
-                    class="flex-1 bg-transparent border-none outline-none text-slate-200 placeholder:text-slate-600 px-2"
-                    autocomplete="off"
-                />
-                <button id="sendTextBtn" class="flex items-center justify-center w-12 h-12 rounded-2xl bg-violet-600 hover:bg-violet-500 text-white transition-all active:scale-90 shadow-lg shadow-violet-600/20">
-                    <i data-lucide="send" class="w-5 h-5"></i>
-                </button>
+            <!-- Chat Log -->
+            <div class="flex-1 overflow-y-auto p-4 space-y-4" id="textLog">
+                <div class="max-w-[85%] flex flex-col items-center justify-center h-full mx-auto text-center">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4 dark:bg-blue-900/30">
+                        <svg class="w-8 h-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Olá! Como posso ajudar hoje?</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Inicie uma conversa no modo livre ou escolha um cenário de Roleplay.</p>
+                </div>
             </div>
-            
-            <div class="flex justify-between items-center px-4">
-                <span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Respostas via IA Claude 3.5</span>
-                <button id="clearTextBtn" class="text-xs text-slate-500 hover:text-rose-400 transition-colors flex items-center gap-1">
-                    <i data-lucide="trash-2" class="w-3 h-3"></i>
-                    Limpar Conversa
-                </button>
+
+            <!-- Input Area -->
+            <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center gap-x-2">
+                    <input id="textInput" type="text" class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400 dark:focus:ring-gray-600" placeholder="Digite sua mensagem...">
+                    <button id="sendTextBtn" type="button" class="inline-flex justify-center items-center h-[2.875rem] w-[2.875rem] rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none">
+                        <svg class="flex-shrink-0 w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4Z"/></svg>
+                    </button>
+                </div>
             </div>
         </div>
     `;
@@ -257,24 +264,38 @@ function appendMsg(role, text, cls) {
     if (!log) return;
 
     // Remove empty state message if exists
-    if (log.querySelector('.text-slate-500')) {
+    if (log.querySelector('.max-w-\\[85\\%\\]')) {
         log.innerHTML = '';
     }
 
     const div = document.createElement("div");
-    div.className = `flex flex-col ${cls === 'me' ? 'items-end' : 'items-start'} mb-4 animate-in fade-in slide-in-from-bottom-2 duration-300`;
-
     const formattedText = text.replace(/\n/g, '<br>');
-    const bubbleClass = cls === 'me'
-        ? 'bg-violet-600 text-white rounded-2xl rounded-tr-none px-4 py-3 shadow-lg shadow-violet-900/10'
-        : 'bg-slate-800 text-slate-100 border border-slate-700 rounded-2xl rounded-tl-none px-4 py-3 shadow-sm';
 
-    div.innerHTML = `
-        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-tighter mb-1 px-1">${role}</span>
-        <div class="${bubbleClass} max-w-[85%] text-sm leading-relaxed">
-            ${formattedText}
-        </div>
-    `;
+    if (cls === 'me') {
+        // Chat Bubble Out (User)
+        div.className = "flex ms-auto gap-x-2 sm:gap-x-4 max-w-[85%] mb-4";
+        div.innerHTML = `
+            <div class="grow text-end space-y-3">
+                <div class="inline-block bg-blue-600 rounded-2xl p-4 shadow-sm">
+                    <p class="text-sm text-white">${formattedText}</p>
+                </div>
+            </div>
+            <span class="flex-shrink-0 inline-flex items-center justify-center h-[2.375rem] w-[2.375rem] rounded-full bg-gray-600">
+                <span class="text-sm font-medium text-white leading-none">EU</span>
+            </span>
+        `;
+    } else {
+        // Chat Bubble In (Bot)
+        div.className = "flex gap-x-2 sm:gap-x-4 max-w-[85%] mb-4";
+        div.innerHTML = `
+            <span class="flex-shrink-0 inline-flex items-center justify-center h-[2.375rem] w-[2.375rem] rounded-full bg-blue-600">
+                <span class="text-sm font-medium text-white leading-none">AI</span>
+            </span>
+            <div class="bg-white border border-gray-200 rounded-2xl p-4 space-y-3 dark:bg-slate-900 dark:border-gray-700">
+                <p class="text-sm text-gray-800 dark:text-white">${formattedText}</p>
+            </div>
+        `;
+    }
 
     log.appendChild(div);
     log.scrollTop = log.scrollHeight;

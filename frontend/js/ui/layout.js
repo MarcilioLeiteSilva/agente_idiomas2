@@ -3,99 +3,87 @@
 export function renderLayout() {
     const app = document.getElementById("app");
     app.innerHTML = `
-    <div class="flex h-screen bg-slate-950 text-slate-200 overflow-hidden font-sans">
-        <!-- Sidebar -->
-        <nav class="w-64 flex flex-col border-r border-slate-800 bg-slate-900/50 backdrop-blur-xl shrink-0">
-            <div class="p-6">
-                <a href="/dashboard.html" class="text-2xl font-bold tracking-tight">
-                    Agente<span class="bg-gradient-to-r from-violet-500 to-fuchsia-500 bg-clip-text text-transparent">Idiomas</span>
-                </a>
-            </div>
-            
-            <ul class="flex-1 px-4 space-y-1 overflow-y-auto py-4">
-                <li data-page="text" class="nav-item group flex items-center gap-3 px-3 py-2 rounded-xl transition-all cursor-pointer hover:bg-white/5 active:scale-[0.98]">
-                    <i data-lucide="message-square" class="w-5 h-5 text-slate-400 group-hover:text-violet-400"></i>
-                    <span class="font-medium">Chat Interativo</span>
-                </li>
-                <li data-page="audio" class="nav-item group flex items-center gap-3 px-3 py-2 rounded-xl transition-all cursor-pointer hover:bg-white/5 active:scale-[0.98]">
-                    <i data-lucide="mic" class="w-5 h-5 text-slate-400 group-hover:text-blue-400"></i>
-                    <span class="font-medium">Voz Acadêmica</span>
-                </li>
-                <li data-page="lessons" class="nav-item group flex items-center gap-3 px-3 py-2 rounded-xl transition-all cursor-pointer hover:bg-white/5 active:scale-[0.98]">
-                    <i data-lucide="graduation-cap" class="w-5 h-5 text-slate-400 group-hover:text-emerald-400"></i>
-                    <span class="font-medium">Trilhas de Estudo</span>
-                </li>
-                <li data-page="interpreter" class="nav-item group flex items-center gap-3 px-3 py-2 rounded-xl transition-all cursor-pointer hover:bg-white/5 active:scale-[0.98]">
-                    <i data-lucide="languages" class="w-5 h-5 text-slate-400 group-hover:text-amber-400"></i>
-                    <span class="font-medium">Intérprete Global</span>
-                </li>
-                <li data-page="progress" class="nav-item group flex items-center gap-3 px-3 py-2 rounded-xl transition-all cursor-pointer hover:bg-white/5 active:scale-[0.98]">
-                    <i data-lucide="bar-chart-3" class="w-5 h-5 text-slate-400 group-hover:text-rose-400"></i>
-                    <span class="font-medium">Minha Evolução</span>
-                </li>
-                <li data-page="settings" class="nav-item group flex items-center gap-3 px-3 py-2 rounded-xl transition-all cursor-pointer hover:bg-white/5 active:scale-[0.98]">
-                    <i data-lucide="settings" class="w-5 h-5 text-slate-400 group-hover:text-slate-200"></i>
-                    <span class="font-medium">Configurações</span>
-                </li>
-            </ul>
+    <!-- Sidebar Navigation -->
+    <div id="application-sidebar" class="hs-overlay hs-overlay-open:translate-x-0 -translate-x-full transition-all duration-300 transform fixed top-0 start-0 bottom-0 z-[60] w-64 bg-white border-e border-gray-200 pt-7 pb-10 overflow-y-auto lg:block lg:translate-x-0 lg:end-auto lg:bottom-0 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-slate-700 dark:[&::-webkit-scrollbar-thumb]:bg-slate-500 dark:bg-slate-900 dark:border-gray-700">
+      <div class="px-6">
+        <a class="flex-none text-xl font-semibold dark:text-white" href="#" aria-label="Brand">Agente<span class="text-blue-600">Idiomas</span></a>
+      </div>
 
-            <div class="mt-auto p-4 border-t border-slate-800 space-y-4">
-                <button id="logoutBtn" class="flex w-full items-center gap-3 px-3 py-2 rounded-xl text-rose-400 hover:bg-rose-500/10 transition-all active:scale-[0.98]">
-                    <i data-lucide="log-out" class="w-5 h-5"></i>
-                    <span class="font-medium">Sair da Sessão</span>
-                </button>
+      <nav class="hs-accordion-group p-6 w-full flex flex-col flex-wrap" data-hs-accordion-always-open>
+        <ul class="space-y-1.5">
+          <li>
+            <a data-page="text" class="nav-item flex items-center gap-x-3.5 py-2 px-2.5 bg-gray-100 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800 cursor-pointer" href="javascript:void(0)">
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              Chat de Texto
+            </a>
+          </li>
 
-                <div class="p-3 rounded-2xl bg-white/5 border border-white/5 flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 flex items-center justify-center font-bold text-white shadow-lg">
-                        <i data-lucide="user" class="w-5 h-5"></i>
-                    </div>
-                    <div class="flex flex-col min-w-0">
-                        <span class="text-sm font-semibold truncate text-white" id="userNameDisplay">Estudante</span>
-                        <span class="text-xs text-slate-400">Nível: Explorador</span>
-                    </div>
-                </div>
-            </div>
-        </nav>
+          <li>
+            <a data-page="audio" class="nav-item flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:text-slate-400 dark:hover:text-slate-300 dark:hover:bg-slate-800 cursor-pointer" href="javascript:void(0)">
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+              Chat de Voz
+            </a>
+          </li>
 
-        <!-- Main Content Area -->
-        <div class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-            <header class="h-16 flex items-center justify-between px-8 border-b border-slate-800 bg-slate-950/50 backdrop-blur-md z-10">
-                <div class="flex items-center gap-4">
-                    <h2 id="pageTitle" class="text-lg font-semibold text-white">Chat</h2>
-                </div>
-                <div class="flex items-center gap-3">
-                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-sm font-medium">
-                        <i data-lucide="flame" class="w-4 h-4"></i>
-                        <span>3 Dias</span>
-                    </div>
-                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-400 text-sm font-medium">
-                        <i data-lucide="zap" class="w-4 h-4"></i>
-                        <span>XP: 450</span>
-                    </div>
-                </div>
-            </header>
-            
-            <main id="mainContent" class="flex-1 overflow-y-auto bg-[radial-gradient(circle_at_top_right,rgba(139,92,246,0.05),transparent)]">
-                <!-- Page content injected here -->
-            </main>
+          <li>
+            <a data-page="lessons" class="nav-item flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:text-slate-400 dark:hover:text-slate-300 dark:hover:bg-slate-800 cursor-pointer" href="javascript:void(0)">
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+              Trilhas de Estudo
+            </a>
+          </li>
+
+          <li>
+            <a data-page="interpreter" class="nav-item flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:text-slate-400 dark:hover:text-slate-300 dark:hover:bg-slate-800 cursor-pointer" href="javascript:void(0)">
+               <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>
+              Intérprete
+            </a>
+          </li>
+
+          <li>
+            <a data-page="progress" class="nav-item flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:text-slate-400 dark:hover:text-slate-300 dark:hover:bg-slate-800 cursor-pointer" href="javascript:void(0)">
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+              Meu Progresso
+            </a>
+          </li>
+
+          <li>
+            <a data-page="settings" class="nav-item flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:text-slate-400 dark:hover:text-slate-300 dark:hover:bg-slate-800 cursor-pointer" href="javascript:void(0)">
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+              Configurações
+            </a>
+          </li>
+        </ul>
+
+        <div class="mt-auto pt-10 px-2">
+            <button id="logoutBtn" type="button" class="w-full flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-red-600 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/10">
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              Sair
+            </button>
         </div>
-        
-        <!-- Right Panel (Contextual) -->
-        <aside class="w-80 hidden xl:flex flex-col border-l border-slate-800 bg-slate-950/30 overflow-hidden">
-            <div class="p-6 border-b border-slate-800">
-                <h4 class="font-semibold flex items-center gap-2 text-white">
-                    <i data-lucide="sparkles" class="w-5 h-5 text-violet-400"></i>
-                    Assistente AI
-                </h4>
-            </div>
-            <div id="rightPanelList" class="flex-1 overflow-y-auto p-6 space-y-4">
-                <!-- System messages -->
-                <div class="p-4 rounded-xl bg-violet-500/5 border border-violet-500/10 text-sm text-slate-400 italic">
-                    Nenhuma sugestão no momento. Comece a praticar!
-                </div>
-            </div>
-        </aside>
+      </nav>
     </div>
+    <!-- End Sidebar -->
+
+    <!-- Content -->
+    <div class="w-full pt-10 px-4 sm:px-6 md:px-8 lg:ps-72 bg-gray-50 min-h-screen dark:bg-slate-900">
+      <header class="flex items-center justify-between mb-8">
+        <div>
+          <h1 id="pageTitle" class="block text-2xl font-bold text-gray-800 sm:text-3xl dark:text-white">Dashboard</h1>
+          <p class="mt-2 text-lg text-gray-600 dark:text-gray-400">Bem-vindo de volta, <span id="userNameDisplay" class="font-semibold text-gray-800 dark:text-gray-200">Estudante</span>.</p>
+        </div>
+        <div class="flex items-center gap-2">
+           <span class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-800/30 dark:text-blue-500">
+            <span class="w-1.5 h-1.5 inline-block rounded-full bg-blue-800 dark:bg-blue-500"></span>
+            Nível: Intermediário
+          </span>
+        </div>
+      </header>
+
+      <div id="mainContent" class="space-y-4 sm:space-y-6">
+        <!-- Dashboard items will be here -->
+      </div>
+    </div>
+    <!-- End Content -->
     `;
 
     if (window.lucide) {

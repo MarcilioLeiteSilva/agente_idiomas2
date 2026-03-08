@@ -6,122 +6,76 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acessar | Agente Idiomas</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/design-system.css">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/main.css">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        .auth-container {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: radial-gradient(circle at top right, rgba(138, 43, 226, 0.15), transparent);
-        }
 
-        .auth-card {
-            width: 100%;
-            max-width: 440px;
-            padding: 48px;
-        }
-
-        .auth-header {
-            text-align: center;
-            margin-bottom: 32px;
-        }
-
-        .auth-header h2 {
-            font-size: 2rem;
-            margin-bottom: 8px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-            color: var(--text-muted);
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 12px 16px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            color: white;
-            transition: var(--trans-fast);
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-        .auth-toggle {
-            text-align: center;
-            margin-top: 24px;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        .auth-toggle a {
-            color: var(--primary-light);
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .social-login {
-            margin-top: 32px;
-            display: flex;
-            gap: 16px;
-        }
-
-        .social-btn {
-            flex: 1;
-        }
-    </style>
-</head>
-
-<body>
-
-    <div class="auth-container">
-        <div class="auth-card glass">
-            <div class="auth-header">
-                <a href="/" class="logo" style="display: block; margin-bottom: 20px;">Agente<span
-                        class="gradient-text">Idiomas</span></a>
-                <h2 id="authTitle">Bem-vindo de volta</h2>
-                <p id="authSubtitle" style="color: var(--text-muted);">Entre para continuar sua jornada.</p>
-            </div>
-
-            <form id="authForm">
-                <div class="form-group" id="nameGroup" style="display: none;">
-                    <label>Nome Completo</label>
-                    <input type="text" id="nameInput" placeholder="Seu nome">
-                </div>
-                <div class="form-group">
-                    <label>E-mail</label>
-                    <input type="email" id="emailInput" placeholder="exemplo@email.com" required>
-                </div>
-                <div class="form-group">
-                    <label>Senha</label>
-                    <input type="password" id="passwordInput" placeholder="••••••••" required>
+<body class="bg-gray-50 dark:bg-slate-900">
+    <!-- Content -->
+    <main class="w-full max-w-md mx-auto p-6 flex items-center min-h-screen">
+        <div
+            class="mt-7 bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-slate-900 dark:border-gray-700 w-full">
+            <div class="p-4 sm:p-7">
+                <div class="text-center">
+                    <h1 class="block text-2xl font-bold text-gray-800 dark:text-white" id="authTitle">Entrar</h1>
+                    <p class="mt-2 text-sm text-gray-600 dark:text-gray-400" id="authSubtitle">
+                        Ainda não tem conta?
+                        <a class="text-blue-600 decoration-2 hover:underline font-medium dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                            href="#" id="toggleBtn">
+                            Cadastre-se aqui
+                        </a>
+                    </p>
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 16px; padding: 14px;">
-                    Entrar
-                </button>
-            </form>
+                <div class="mt-5">
+                    <!-- Form -->
+                    <form id="authForm">
+                        <div class="grid gap-y-4">
+                            <!-- Form Group -->
+                            <div id="nameGroup" style="display: none;">
+                                <label for="nameInput" class="block text-sm mb-2 dark:text-white">Nome Completo</label>
+                                <div class="relative">
+                                    <input type="text" id="nameInput" name="name"
+                                        class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400 dark:focus:ring-gray-600"
+                                        placeholder="Seu nome">
+                                </div>
+                            </div>
+                            <!-- End Form Group -->
 
-            <div class="auth-toggle">
-                <span id="toggleText">Ainda não tem uma conta?</span>
-                <a href="#" id="toggleBtn">Cadastre-se</a>
+                            <!-- Form Group -->
+                            <div>
+                                <label for="email" class="block text-sm mb-2 dark:text-white">Endereço de E-mail</label>
+                                <div class="relative">
+                                    <input type="email" id="emailInput" name="email"
+                                        class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400 dark:focus:ring-gray-600"
+                                        required placeholder="exemplo@email.com">
+                                </div>
+                            </div>
+                            <!-- End Form Group -->
+
+                            <!-- Form Group -->
+                            <div>
+                                <div class="flex justify-between items-center">
+                                    <label for="password" class="block text-sm mb-2 dark:text-white">Senha</label>
+                                </div>
+                                <div class="relative">
+                                    <input type="password" id="passwordInput" name="password"
+                                        class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400 dark:focus:ring-gray-600"
+                                        required placeholder="••••••••">
+                                </div>
+                            </div>
+                            <!-- End Form Group -->
+
+                            <button type="submit"
+                                class="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                                id="submitBtn">Entrar</button>
+                        </div>
+                    </form>
+                    <!-- End Form -->
+                </div>
             </div>
         </div>
-    </div>
+    </main>
+    <!-- End Content -->
 
     <script type="module">
         import { apiCall } from './js/api.js';

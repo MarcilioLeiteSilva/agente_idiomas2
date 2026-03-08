@@ -1,10 +1,26 @@
-FROM nginx:stable-alpine
+# Stage 1: Build the Vite app
+FROM node:20-alpine as build-stage
 
-# Copy static files to nginx html directory (context is repository root)
-COPY frontend /usr/share/nginx/html
+WORKDIR /app
 
-# Copy custom nginx config to support SPA routing
-COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
+# Copy package files and install dependencies
+COPY package*.json ./
+RUN npm install
+
+# Copy all frontend files (except those in .dockerignore)
+COPY . .
+
+# Build the project
+RUN npm run build
+
+# Stage 2: Serve the app with Nginx
+FROM nginx:stable-alpine as production-stage
+
+# Copy the build output from the previous stage
+COPY --from=build-stage /app/dist /usr/share/nginx/html
+
+# Copy custom nginx config
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
