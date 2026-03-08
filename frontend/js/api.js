@@ -11,7 +11,7 @@ if (!isLocal && host.includes("-frontend.")) {
     API_BASE = window.location.origin.replace("-frontend.", "-backend.");
 }
 
-console.warn(`[AGENTE IDIOMAS] API_BASE vinculada: ${API_BASE}`);
+console.info(`[AGENTE IDIOMAS] API_BASE vinculada: ${API_BASE}`);
 
 export async function apiCall(endpoint, method = "GET", body = null) {
     const token = localStorage.getItem("access_token");
@@ -20,22 +20,30 @@ export async function apiCall(endpoint, method = "GET", body = null) {
         headers["Authorization"] = `Bearer ${token}`;
     }
 
-    const config = { method, headers };
-
     if (!(body instanceof FormData)) {
         headers["Content-Type"] = "application/json; charset=utf-8";
     }
 
+    const config = { method, headers };
     if (body) {
         config.body = body instanceof FormData ? body : JSON.stringify(body);
     }
 
+    const url = `${API_BASE}${endpoint}`;
+    console.debug(`[API Call] ${method} ${url}`, { headers, body });
+
     try {
-        const res = await fetch(`${API_BASE}${endpoint}`, config);
+        const res = await fetch(url, config);
+        console.debug(`[API Response] ${res.status} ${res.statusText}`);
 
         if (!res.ok) {
             const text = await res.text();
-            throw new Error(`API Error ${res.status}: ${text}`);
+            let errorMsg = `API Error ${res.status}: ${text}`;
+            try {
+                const json = JSON.parse(text);
+                if (json.detail) errorMsg = json.detail;
+            } catch (e) { }
+            throw new Error(errorMsg);
         }
 
         const contentType = res.headers.get("content-type") || "";
@@ -45,7 +53,11 @@ export async function apiCall(endpoint, method = "GET", body = null) {
 
         return await res.text();
     } catch (err) {
-        console.error(`API Call Failed [${endpoint}]:`, err);
+        console.error(`[API Exception] ${method} ${url}:`, err);
+        // Se falhar o fetch, pode ser CORS ou rede.
+        if (err.message === "Failed to fetch") {
+            throw new Error(`Erro de conexão: Verifique se o backend está online em ${API_BASE}`);
+        }
         throw err;
     }
 }

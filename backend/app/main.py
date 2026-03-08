@@ -110,7 +110,7 @@ def login(req: LoginReq):
 # --- HEALTH & DIAGNOSTICS ---
 @app.get("/health")
 def root_health():
-    return {"ok": True, "version": "v14.0-auth"}
+    return {"ok": True, "version": "v14.1-debug"}
 
 @app.get("/v1/health")
 def v1_health():
@@ -184,7 +184,7 @@ def v1_message(req: MessageReq):
         store=store,
         session_id=req.session_id,
         message=req.message.model_dump(),
-        ui_action=req.ui_action.model_dump() if req.ui_action else None,
+        ui_action=req.ui_action if req.ui_action else None,
     )
 
 # ✅ NOVO: streaming SSE
@@ -196,7 +196,7 @@ def v1_stream(req: MessageReq):
                 store=store,
                 session_id=req.session_id,
                 message=req.message.model_dump(),
-                ui_action=req.ui_action.model_dump() if req.ui_action else None,
+                ui_action=req.ui_action if req.ui_action else None,
             ):
                 yield f"data: {json.dumps(chunk, ensure_ascii=False)}\n\n"
         except Exception as e:
