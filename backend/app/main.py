@@ -46,12 +46,16 @@ store = Store(config.DB_PATH)
 
 @app.get("/")
 def index():
-    # Se existir landing.html, usa ele como root
-    if WEB_DIR.exists() and (WEB_DIR / "landing.html").exists():
-        return FileResponse(WEB_DIR / "landing.html")
+    # Landing page é agora o index.html
     if WEB_DIR.exists() and (WEB_DIR / "index.html").exists():
         return FileResponse(WEB_DIR / "index.html")
     return {"message": "Agente Idiomas API is running."}
+
+@app.get("/dashboard")
+def dashboard():
+    if WEB_DIR.exists() and (WEB_DIR / "dashboard.html").exists():
+        return FileResponse(WEB_DIR / "dashboard.html")
+    return {"error": "Dashboard not found"}
 
 # --- AUTH ENDPOINTS ---
 from core.auth import get_password_hash, verify_password, create_access_token
@@ -60,11 +64,25 @@ import uuid
 class RegisterReq(BaseModel):
     email: str
     password: str
-    name: str
+    full_name: str
 
 class LoginReq(BaseModel):
     email: str
     password: str
+
+class MessageItem(BaseModel):
+    role: str
+    content: str
+
+class MessageReq(BaseModel):
+    session_id: str
+    message: MessageItem
+    ui_action: Optional[Dict] = None
+
+class SettingsReq(BaseModel):
+    session_id: str
+    output_mode: Literal["text", "voice"]
+    language: str
 
 @app.post("/v1/auth/register")
 def register(req: RegisterReq):
@@ -75,7 +93,7 @@ def register(req: RegisterReq):
     
     user_id = str(uuid.uuid4())
     pw_hash = get_password_hash(req.password)
-    store.create_user(user_id, req.email, pw_hash, req.name)
+    store.create_user(user_id, req.email, pw_hash, req.full_name)
     
     return {"ok": True, "user_id": user_id}
 

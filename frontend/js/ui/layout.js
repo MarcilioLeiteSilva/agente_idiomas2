@@ -8,7 +8,7 @@ export function renderLayout() {
             <!-- Sidebar -->
             <nav class="sidebar glass">
                 <div class="brand">
-                    <a href="/index.html" class="logo">Agente<span class="gradient-text">Idiomas</span></a>
+                    <a href="/dashboard.html" class="logo">Agente<span class="gradient-text">Idiomas</span></a>
                 </div>
                 
                 <ul class="nav-links">
