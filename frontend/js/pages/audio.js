@@ -23,26 +23,52 @@ export function mount(parent) {
     container = document.createElement("div");
     container.className = "page-audio";
     container.innerHTML = `
-        <div class="audio-dashboard glass">
-            <div class="voice-orb-container">
-                <div id="voiceOrb" class="voice-orb idle"></div>
-                <div id="statusIndicator" class="badge" style="margin-top: 20px;">Pronto para ouvir</div>
-            </div>
-            
-            <div class="audio-controls-row">
-                <button id="btnInit" class="btn btn-primary btn-large">Iniciar Sessão de Voz</button>
-                <div id="activeControls" style="display:none; gap: 10px;">
-                    <button id="btnPause" class="btn btn-outline">⏸️ Pausar</button>
-                    <button id="btnStop" class="btn btn-danger">Encerrar</button>
+        <div class="max-w-3xl mx-auto space-y-6">
+            <div class="bg-white border border-gray-200 rounded-3xl p-8 shadow-sm dark:bg-slate-900 dark:border-gray-700 text-center">
+                <div class="mb-8 flex justify-center">
+                    <div id="voiceOrb" class="w-32 h-32 bg-blue-600 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(37,99,235,0.4)] transition-all duration-500 scale-100">
+                        <svg class="w-12 h-12 text-white" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+                    </div>
+                </div>
+                
+                <span id="statusIndicator" class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-500 mb-6 uppercase tracking-wider">
+                    <span class="w-2 h-2 inline-block rounded-full bg-blue-600 animate-pulse"></span>
+                    Pronto para ouvir
+                </span>
+                
+                <div class="flex justify-center gap-4">
+                    <button id="btnInit" class="py-3 px-8 inline-flex items-center gap-x-2 text-sm font-bold rounded-xl border border-transparent bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-lg active:scale-95">
+                        Iniciar Sessão de Voz
+                    </button>
+                    <div id="activeControls" class="hidden gap-x-3">
+                        <button id="btnPause" class="py-3 px-6 inline-flex items-center gap-x-2 text-sm font-semibold rounded-xl border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 dark:bg-slate-900 dark:border-gray-700 dark:text-white dark:hover:bg-gray-800 transition-all active:scale-95">
+                            ⏸️ Pausar
+                        </button>
+                        <button id="btnStop" class="py-3 px-6 inline-flex items-center gap-x-2 text-sm font-semibold rounded-xl border border-transparent bg-red-600 text-white hover:bg-red-700 transition-all shadow-lg active:scale-95">
+                            Encerrar
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div id="audioLog" class="chatbox" style="margin-top: 24px;"></div>
-        <audio id="audioPlayer" style="display:none"></audio>
-        
-        <div class="hint-card glass" style="margin-top: 16px; padding: 12px; font-size: 0.85rem; color: var(--text-muted); text-align: center;">
-            <p>O Agente Idiomas usa detecção automática de silêncio. Fale naturalmente e ele responderá em áudio.</p>
+            <div id="audioLog" class="bg-white border border-gray-200 rounded-2xl p-4 h-[300px] overflow-y-auto dark:bg-slate-900 dark:border-gray-700 space-y-3">
+                 <!-- Logs will appear here -->
+            </div>
+            
+            <audio id="audioPlayer" class="hidden"></audio>
+            
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 dark:bg-amber-900/10 dark:border-amber-900/20">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                    </div>
+                    <div class="ms-3">
+                        <p class="text-xs text-amber-800 dark:text-amber-400 italic">
+                            O Agente Idiomas usa detecção automática de silêncio. Fale naturalmente e ele responderá em áudio.
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
     `;
     parent.appendChild(container);
@@ -52,40 +78,6 @@ export function mount(parent) {
     document.getElementById("btnStop").onclick = endSession;
 }
 
-const audioStyles = `
-    .audio-dashboard {
-        padding: 40px;
-        border-radius: 24px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        background: rgba(255,255,255,0.03);
-    }
-    .voice-orb {
-        width: 120px;
-        height: 120px;
-        background: var(--grad-primary);
-        border-radius: 50%;
-        box-shadow: 0 0 30px rgba(138, 43, 226, 0.4);
-        transition: all 0.5s ease;
-    }
-    .voice-orb.listening {
-        transform: scale(1.1);
-        animation: pulseOrb 2s infinite;
-        background: linear-gradient(135deg, #10b981, #34d399);
-        box-shadow: 0 0 40px rgba(16, 185, 129, 0.4);
-    }
-    .voice-orb.processing {
-        animation: spinOrb 1s infinite linear;
-        border: 4px dashed var(--primary-light);
-    }
-    @keyframes pulseOrb {
-        0% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
-        50% { box-shadow: 0 0 60px rgba(16, 185, 129, 0.6); }
-        100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
-    }
-`;
 
 function togglePause() {
     isPaused = !isPaused;
@@ -94,22 +86,21 @@ function togglePause() {
     if (isPaused) {
         btn.innerText = "▶️ Retomar";
         updateStatus("Em Pausa");
-        orb.style.opacity = "0.5";
+        orb.classList.add("opacity-50");
         if (mediaRecorder && mediaRecorder.state === "recording") mediaRecorder.stop();
     } else {
         btn.innerText = "⏸️ Pausar";
         updateStatus("Ouvindo...");
-        orb.style.opacity = "1";
+        orb.classList.remove("opacity-50");
         startVAD();
     }
 }
 
 function endSession() {
     stopSessionHard();
-    document.getElementById("btnInit").style.display = "block";
-    document.getElementById("activeControls").style.display = "none";
+    document.getElementById("btnInit").classList.remove("hidden");
+    document.getElementById("activeControls").classList.add("hidden");
     updateStatus("Sessão Encerrada");
-    document.getElementById("voiceOrb").className = "voice-orb idle";
 }
 
 export function unmount() {
@@ -235,20 +226,33 @@ function stopSessionHard() {
 function updateStatus(txt) {
     const el = document.getElementById("statusIndicator");
     const orb = document.getElementById("voiceOrb");
-    if (el) el.innerText = txt;
+    if (el) el.innerHTML = `<span class="w-2 h-2 inline-block rounded-full bg-blue-600 animate-pulse"></span> ${txt}`;
     if (orb) {
-        if (txt.includes("Ouvindo") || txt.includes("Falando")) orb.className = "voice-orb listening";
-        else if (txt.includes("Processando")) orb.className = "voice-orb processing";
-        else orb.className = "voice-orb idle";
+        if (txt.includes("Ouvindo") || txt.includes("Falando")) {
+            orb.className = "w-32 h-32 bg-emerald-500 rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(16,185,129,0.5)] transition-all duration-500 scale-110 animate-pulse";
+        } else if (txt.includes("Processando")) {
+            orb.className = "w-32 h-32 bg-blue-600 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(37,99,235,0.4)] transition-all duration-1000 scale-100 rotate-180";
+        } else {
+            orb.className = "w-32 h-32 bg-blue-600 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(37,99,235,0.4)] transition-all duration-500 scale-100";
+        }
     }
 }
 
 function appendLog(role, text, cls) {
     const log = document.getElementById("audioLog");
     if (!log) return;
+
+    const isBot = cls === 'bot';
     const div = document.createElement("div");
-    div.className = `msg ${cls}`;
-    div.innerHTML = `<div class="msg-content">${text}</div>`;
+    div.className = `flex ${isBot ? 'justify-start' : 'justify-end'} mb-4`;
+
+    div.innerHTML = `
+        <div class="max-w-[80%] ${isBot ? 'bg-gray-100 text-gray-800 rounded-br-2xl rounded-tr-2xl rounded-bl-sm dark:bg-slate-800 dark:text-gray-200' : 'bg-blue-600 text-white rounded-bl-2xl rounded-tl-2xl rounded-br-sm'} p-3 shadow-sm">
+            <p class="text-xs font-bold mb-1 opacity-70">${role}</p>
+            <p class="text-sm">${text}</p>
+        </div>
+    `;
+
     log.appendChild(div);
     log.scrollTop = log.scrollHeight;
 }

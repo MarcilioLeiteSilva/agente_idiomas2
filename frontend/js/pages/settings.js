@@ -26,52 +26,77 @@ export function unmount() {
 
 function render() {
     container.innerHTML = `
-        <div class="settings-grid">
-            <div class="card glass">
-                <h3>Perfil do Aluno</h3>
-                <div class="form-group">
-                    <label>Seu Nome / ID:</label>
-                    <input id="inpSession" class="styled-input" value="${state.sessionId}" />
+        <div class="max-w-4xl mx-auto space-y-6">
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Configurações</h2>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Perfil Card -->
+                <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm dark:bg-slate-900 dark:border-gray-700">
+                    <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        Perfil do Aluno
+                    </h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2 dark:text-white">ID de Usuário</label>
+                            <input id="inpSession" class="py-3 px-4 block w-full border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400" value="${state.sessionId}" disabled />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2 dark:text-white">Idioma Nativo</label>
+                            <select id="inpNative" class="py-3 px-4 block w-full border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400">
+                                <option value="pt" ${state.userProfile.native_language === 'pt' ? 'selected' : ''}>Português</option>
+                                <option value="en" ${state.userProfile.native_language === 'en' ? 'selected' : ''}>English</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Idioma Nativo:</label>
-                    <select id="inpNative" class="styled-input">
-                        <option value="pt" ${state.userProfile.native_language === 'pt' ? 'selected' : ''}>Português</option>
-                        <option value="en" ${state.userProfile.native_language === 'en' ? 'selected' : ''}>English</option>
-                    </select>
-                </div>
-            </div>
 
-            <div class="card glass">
-                <h3>Metas de Aprendizado</h3>
-                <div class="form-group">
-                    <label>Idioma Alvo:</label>
-                    <select id="inpTarget" class="styled-input">
-                        <option value="en" ${state.userProfile.target_language === 'en' ? 'selected' : ''}>English (EUA/UK)</option>
-                        <option value="fr" ${state.userProfile.target_language === 'fr' ? 'selected' : ''}>Français (França)</option>
-                        <option value="es" ${state.userProfile.target_language === 'es' ? 'selected' : ''}>Español (Espanha)</option>
-                    </select>
+                <!-- Metas Card -->
+                <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm dark:bg-slate-900 dark:border-gray-700">
+                    <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-emerald-600" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 14 4-4-4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>
+                        Objetivos
+                    </h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2 dark:text-white">Idioma Alvo</label>
+                            <select id="inpTarget" class="py-3 px-4 block w-full border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400">
+                                <option value="en" ${state.userProfile.target_language === 'en' ? 'selected' : ''}>English (EUA/UK)</option>
+                                <option value="fr" ${state.userProfile.target_language === 'fr' ? 'selected' : ''}>Français (França)</option>
+                                <option value="es" ${state.userProfile.target_language === 'es' ? 'selected' : ''}>Español (Espanha)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2 dark:text-white">Nível Atual</label>
+                            <select id="inpLevel" class="py-3 px-4 block w-full border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400">
+                                <option value="Básico" ${state.userProfile.level === 'Básico' ? 'selected' : ''}>Iniciante / Básico</option>
+                                <option value="Intermediário" ${state.userProfile.level === 'Intermediário' ? 'selected' : ''}>Intermediário</option>
+                                <option value="Avançado" ${state.userProfile.level === 'Avançado' ? 'selected' : ''}>Avançado / Fluente</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Nível de Proficiência:</label>
-                    <select id="inpLevel" class="styled-input">
-                        <option value="Básico" ${state.userProfile.level === 'Básico' ? 'selected' : ''}>Iniciante / Básico</option>
-                        <option value="Intermediário" ${state.userProfile.level === 'Intermediário' ? 'selected' : ''}>Intermediário (B1/B2)</option>
-                        <option value="Avançado" ${state.userProfile.level === 'Avançado' ? 'selected' : ''}>Avançado / Fluente</option>
-                    </select>
-                </div>
-            </div>
 
-            <div class="card glass full-width">
-                <h3>Conectividade & Diagnóstico</h3>
-                <div style="display: flex; gap: 12px; align-items: center;">
-                    <button id="btnHealth" class="btn btn-outline">Testar Conexão</button>
-                    <span id="healthStatus" class="badge">Aguardando...</span>
-                </div>
-                <div id="diagnosticsArea" class="diag-output" style="display: none;"></div>
-                
-                <div style="margin-top: 24px; display: flex; justify-content: flex-end;">
-                    <button id="btnSaveSettings" class="btn btn-primary">Salvar Alterações</button>
+                <!-- Diagnóstico Card -->
+                <div class="md:col-span-2 bg-white border border-gray-200 rounded-2xl p-6 shadow-sm dark:bg-slate-900 dark:border-gray-700">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
+                             <svg class="w-5 h-5 text-amber-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="m17 7-5-5-5 5"/><path d="m17 17-5 5-5-5"/></svg>
+                             Status do Sistema
+                        </h3>
+                        <div class="flex items-center gap-2">
+                            <span id="healthStatus" class="inline-flex items-center gap-x-1.5 py-1.5 px-3 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-white/10 dark:text-white">Aguardando...</span>
+                            <button id="btnHealth" class="py-2 px-3 inline-flex items-center gap-x-2 text-xs font-semibold rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 dark:bg-slate-900 dark:border-gray-700 dark:text-white dark:hover:bg-gray-800 transition-all">Testar</button>
+                        </div>
+                    </div>
+                    
+                    <div id="diagnosticsArea" class="hidden mt-4 p-4 bg-gray-50 rounded-xl font-mono text-xs text-blue-600 dark:bg-black/20 dark:text-blue-400 overflow-x-auto"></div>
+
+                    <div class="mt-8 flex justify-end gap-3 pt-6 border-t border-gray-100 dark:border-gray-800">
+                         <button id="btnSaveSettings" class="py-3 px-8 inline-flex items-center gap-x-2 text-sm font-bold rounded-xl bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition-all shadow-lg">
+                            Salvar Alterações
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
