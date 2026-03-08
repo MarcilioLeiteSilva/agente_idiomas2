@@ -730,3 +730,9 @@ class Store:
             con.row_factory = sqlite3.Row
             row = con.execute("SELECT * FROM users WHERE email=?", (email,)).fetchone()
             return dict(row) if row else None
+
+    def get_user_by_id(self, user_id: str):
+        with sqlite3.connect(self.path) as con:
+            con.row_factory = sqlite3.Row
+            row = con.execute("SELECT * FROM users WHERE id=?", (user_id,)).fetchone()
+            return dict(row) if row else None

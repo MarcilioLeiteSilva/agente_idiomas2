@@ -415,6 +415,12 @@ def v1_get_profile(user_id: str):
     profile = store.get_profile(user_id)
     if not profile:
         return {"error": "Profile not found"}
+        
+    user = store.get_user_by_id(user_id)
+    if user:
+        profile["full_name"] = user.get("name")
+        profile["email"] = user.get("email")
+        
     return profile
 
 # ✅ NOVO: Endpoint de Lições (Fase 1 - Passo 2)
@@ -439,6 +445,13 @@ def v1_lessons(target_language: Optional[str] = None, level: Optional[str] = Non
     if not level: level = "A1"
     
     return lesson_engine.load_lessons(target_language, level)
+
+@app.get("/v1/lesson/info")
+def v1_lesson_info(target_language: str, lesson_id: str):
+    lesson = lesson_engine.get_lesson_by_id(target_language, lesson_id)
+    if lesson:
+        return {"title": lesson.get("title", lesson_id)}
+    return {"error": "Not found"}
 
 # ✅ NOVO: Fluxo de Lição e Progresso (Fase 1 - Passo 3)
 

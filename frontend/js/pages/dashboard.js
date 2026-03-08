@@ -23,9 +23,21 @@ export async function mount(parent) {
             apiCall(`/v1/stats?user_id=${state.sessionId}`).catch(() => ({})),
             apiCall(`/v1/progress?user_id=${state.sessionId}`).catch(() => [])
         ]);
-        render(stats, progress);
+
+        let preetchedLastItem = null;
+        if (Array.isArray(progress) && progress.length > 0) {
+            preetchedLastItem = [...progress].sort((a, b) => (b.started_at || "").localeCompare(a.started_at || ""))[0];
+            if (preetchedLastItem && preetchedLastItem.lesson_id) {
+                try {
+                    const info = await apiCall(`/v1/lesson/info?target_language=${preetchedLastItem.target_language || 'en'}&lesson_id=${preetchedLastItem.lesson_id}`);
+                    preetchedLastItem.lesson_title = info.title;
+                } catch (e) { }
+            }
+        }
+
+        render(stats, progress, preetchedLastItem);
     } catch (e) {
-        render({}, []);
+        render({}, [], null);
     }
 }
 
@@ -33,12 +45,13 @@ export function unmount() {
     if (container) container.remove();
 }
 
-function render(stats, progress) {
+function render(stats, progress, preetchedLastItem = null) {
     container.innerHTML = "";
 
     const profile = state.userProfile || {};
     const email = localStorage.getItem("user_email") || state.sessionId || "";
-    const name = profile.full_name || email.split("@")[0] || "Estudante";
+    // Aqui usamos o full_name ou o user_name do localStorage (definido no auth.html)
+    const name = profile.full_name || localStorage.getItem("user_name") || email.split("@")[0] || "Estudante";
     const level = profile.level || "A1";
     const nativeLang = langLabel(profile.native_language || "pt");
     const targetLang = langLabel(profile.target_language || "en");
@@ -54,9 +67,9 @@ function render(stats, progress) {
         : 0;
 
     // Última atividade
-    const lastItem = Array.isArray(progress) && progress.length > 0
+    const lastItem = preetchedLastItem || (Array.isArray(progress) && progress.length > 0
         ? [...progress].sort((a, b) => (b.started_at || "").localeCompare(a.started_at || ""))[0]
-        : null;
+        : null);
 
     // ── Saudação ──────────────────────────────────────────────────────────────
     const hourNow = new Date().getHours();
@@ -169,7 +182,7 @@ function render(stats, progress) {
             <div class="flex items-start gap-4 p-4 rounded-xl bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-gray-700">
                 <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-xl flex-shrink-0">📚</div>
                 <div class="flex-1 min-w-0">
-                    <p class="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">${lastItem.lesson_id}</p>
+                    <p class="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">${lastItem.lesson_title || lastItem.lesson_id}</p>
                     <p class="text-xs text-gray-400 mt-0.5">${date}</p>
                 </div>
                 <span class="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full flex-shrink-0 ${isOk

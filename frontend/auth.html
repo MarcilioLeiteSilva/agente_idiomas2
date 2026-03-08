@@ -145,6 +145,7 @@
                     if (data.access_token) {
                         localStorage.setItem('access_token', data.access_token);
                         localStorage.setItem('user_email', email);
+                        localStorage.setItem('user_name', data.user?.name || '');
                         // Usar o user_id real (UUID) retornado pelo backend, não o email
                         const realUserId = data.user?.id || email;
                         setSessionId(realUserId);

@@ -38,8 +38,12 @@ function render() {
                     </h3>
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-sm font-medium mb-2 dark:text-white">ID de Usuário</label>
-                            <input id="inpSession" class="py-3 px-4 block w-full border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400" value="${state.sessionId}" disabled />
+                            <label class="block text-sm font-medium mb-2 dark:text-white">Nome do Aluno</label>
+                            <input class="py-3 px-4 block w-full border-gray-200 rounded-xl text-sm bg-gray-50 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400" value="${state.userProfile?.full_name || localStorage.getItem('user_name') || ''}" disabled />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2 dark:text-white">Endereço de E-mail</label>
+                            <input class="py-3 px-4 block w-full border-gray-200 rounded-xl text-sm bg-gray-50 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400" value="${state.userProfile?.email || localStorage.getItem('user_email') || ''}" disabled />
                         </div>
                         <div>
                             <label class="block text-sm font-medium mb-2 dark:text-white">Idioma Nativo</label>
@@ -165,13 +169,13 @@ async function checkHealth() {
 }
 
 async function save() {
-    const newSession = document.getElementById("inpSession").value.trim();
+    const newSession = state.sessionId;
     const nat = document.getElementById("inpNative").value;
     const tgt = document.getElementById("inpTarget").value;
     const lvl = document.getElementById("inpLevel").value;
 
     if (!newSession) {
-        showToast("Escolha um nome ou ID de usuário", "error");
+        showToast("Erro: ID de sessão não encontrado.", "error");
         return;
     }
 
