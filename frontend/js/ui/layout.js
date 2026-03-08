@@ -1,8 +1,37 @@
 // web/js/ui/layout.js
 
 export function renderLayout() {
-    const app = document.getElementById("app");
-    app.innerHTML = `
+  const app = document.getElementById("app");
+  app.innerHTML = `
+    <!-- ========== HEADER ========== -->
+    <header class="sticky top-0 inset-x-0 flex flex-wrap sm:justify-start sm:flex-nowrap z-[48] w-full bg-white border-b text-sm py-2.5 sm:py-4 lg:ps-64 dark:bg-slate-900 dark:border-gray-700">
+      <nav class="flex basis-full items-center w-full mx-auto px-4 sm:px-6 md:px-8" aria-label="Global">
+        <div class="me-5 lg:me-0 lg:hidden">
+          <a class="flex-none text-xl font-semibold dark:text-white" href="#" aria-label="Brand">Agente<span class="text-blue-600">Idiomas</span></a>
+        </div>
+
+        <div class="w-full flex items-center justify-end ms-auto sm:justify-between sm:gap-x-3 sm:order-3">
+          <div class="sm:hidden">
+            <button type="button" class="w-[2.375rem] h-[2.375rem] inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-full border border-transparent text-gray-800 hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none dark:text-white dark:hover:bg-gray-700 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600">
+              <svg class="flex-shrink-0 w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            </button>
+          </div>
+
+          <div class="flex flex-row items-center justify-end gap-2">
+            <!-- Navigation Toggle -->
+            <button type="button" class="text-gray-500 hover:text-gray-600 lg:hidden" data-hs-overlay="#application-sidebar" aria-controls="application-sidebar" aria-label="Toggle navigation">
+              <span class="sr-only">Toggle Navigation</span>
+              <svg class="flex-shrink-0 w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+              </svg>
+            </button>
+            <!-- End Navigation Toggle -->
+          </div>
+        </div>
+      </nav>
+    </header>
+    <!-- ========== END HEADER ========== -->
+
     <!-- Sidebar Navigation -->
     <div id="application-sidebar" class="hs-overlay hs-overlay-open:translate-x-0 -translate-x-full transition-all duration-300 transform fixed top-0 start-0 bottom-0 z-[60] w-64 bg-white border-e border-gray-200 pt-7 pb-10 overflow-y-auto lg:block lg:translate-x-0 lg:end-auto lg:bottom-0 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-slate-700 dark:[&::-webkit-scrollbar-thumb]:bg-slate-500 dark:bg-slate-900 dark:border-gray-700">
       <div class="px-6">
@@ -65,7 +94,7 @@ export function renderLayout() {
     <!-- End Sidebar -->
 
     <!-- Content -->
-    <div class="w-full pt-10 px-4 sm:px-6 md:px-8 lg:ps-72 bg-gray-50 min-h-screen dark:bg-slate-900">
+    <div class="w-full pt-4 px-4 sm:px-6 md:px-8 lg:ps-72 bg-slate-50 min-h-screen dark:bg-slate-900">
       <header class="flex items-center justify-between mb-8">
         <div>
           <h1 id="pageTitle" class="block text-2xl font-bold text-gray-800 sm:text-3xl dark:text-white">Dashboard</h1>
@@ -86,16 +115,22 @@ export function renderLayout() {
     <!-- End Content -->
     `;
 
-    if (window.lucide) {
-        window.lucide.createIcons();
-    }
+  if (window.lucide) {
+    window.lucide.createIcons();
+  }
 }
 
 export function setActiveNav(pageId) {
-    document.querySelectorAll(".nav-item").forEach(el => {
-        const isActive = el.dataset.page === pageId;
-        el.classList.toggle("bg-white/10", isActive);
-        el.classList.toggle("text-white", isActive);
-        el.classList.toggle("text-slate-400", !isActive);
-    });
+  document.querySelectorAll(".nav-item").forEach(el => {
+    const isActive = el.dataset.page === pageId;
+    // Classes para Item Ativo (Light: bg-gray-100 text-slate-800 | Dark: bg-slate-800 text-white)
+    el.classList.toggle("bg-gray-100", isActive);
+    el.classList.toggle("text-slate-800", isActive);
+    el.classList.toggle("dark:bg-slate-800", isActive);
+    el.classList.toggle("dark:text-white", isActive);
+
+    // Classes para Item Inativo (Light: text-slate-700 hover:bg-gray-50 | Dark: text-slate-400 hover:text-slate-300)
+    el.classList.toggle("text-slate-700", !isActive);
+    el.classList.toggle("dark:text-slate-400", !isActive);
+  });
 }
