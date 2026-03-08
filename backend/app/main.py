@@ -154,9 +154,10 @@ def register(req: RegisterReq):
             raise HTTPException(status_code=400, detail="E-mail inválido")
             
         # Bcrypt has a 72-byte limit. We validate this and return 400.
+        # some implementations count the null terminator, so we use 72 as absolute limit.
         password_bytes = len(req.password.encode('utf-8'))
-        if password_bytes > 72:
-            raise HTTPException(status_code=400, detail="Senha muito longa. Por favor, use no máximo 72 caracteres.")
+        if password_bytes >= 72:
+            raise HTTPException(status_code=400, detail="Sua senha é muito longa para o sistema (limite de 72 bytes). Por favor, use uma senha menor.")
 
         existing = store.get_user_by_email(req.email)
         if existing:
@@ -178,7 +179,8 @@ def login(req: LoginReq):
     try:
         # Validate bcrypt length limit first
         password_bytes = len(req.password.encode('utf-8'))
-        if password_bytes > 72:
+        if password_bytes >= 72:
+             # For login, any length check failure should be treated as invalid credentials
              raise HTTPException(status_code=401, detail="E-mail ou senha inválidos")
 
         user = store.get_user_by_email(req.email)
@@ -204,7 +206,7 @@ def login(req: LoginReq):
 # --- HEALTH & DIAGNOSTICS ---
 @app.get("/health")
 def root_health():
-    return {"ok": True, "version": "v14.4-bcrypt-fix"}
+    return {"ok": True, "version": "v14.5.2-bcrypt-safe"}
 
 @app.get("/v1/health")
 def v1_health():
