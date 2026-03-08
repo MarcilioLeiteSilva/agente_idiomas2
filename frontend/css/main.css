@@ -1,8 +1,10 @@
 @import "tailwindcss";
 @config "../tailwind.config.js";
 
+@source "../node_modules/preline/dist/*.js";
+@import "../node_modules/preline/variants.css";
+
 @plugin "@tailwindcss/forms";
-@plugin "preline/plugin";
 
 @layer base {
     body {
