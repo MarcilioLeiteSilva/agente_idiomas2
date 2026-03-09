@@ -221,7 +221,7 @@
                 ? "http://localhost:8000/v1/admin" : "/v1/admin";
         };
         const url_base = getApiBase();
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("access_token");
 
         if (!token) window.location.href = "auth.html";
 
@@ -433,7 +433,7 @@
         }
 
         function logoutAdmin() {
-            localStorage.removeItem("token");
+            localStorage.removeItem("access_token");
             window.location.href = "auth.html";
         }
 

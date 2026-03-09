@@ -204,7 +204,8 @@ def login(req: LoginReq):
             "access_token": token, 
             "user": {
                 "id": user["id"], 
-                "name": user.get("name", user.get("full_name", ""))
+                "name": user.get("name", user.get("full_name", "")),
+                "role": user.get("role", "student")
             }
         }
     except HTTPException as e:
