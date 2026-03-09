@@ -2,11 +2,11 @@
 from fastapi import APIRouter, Depends, HTTPException, Security
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from core.auth import decode_access_token
-from app.main import store
 
 security = HTTPBearer()
 
 def get_current_user(credentials: HTTPAuthorizationCredentials = Security(security)):
+    from app.main import store
     token = credentials.credentials
     payload = decode_access_token(token)
     if not payload or "sub" not in payload:
