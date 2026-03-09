@@ -1,7 +1,11 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from app.api.dependencies.security import get_admin_user
+from pydantic import BaseModel
 
 router = APIRouter(prefix="/v1/admin", tags=["Admin"])
+
+class RoleUpdateReq(BaseModel):
+    role: str
 
 @router.get("/dashboard")
 def get_dashboard_stats(admin_user: dict = Depends(get_admin_user)):
@@ -29,5 +33,21 @@ def get_recent_activity(admin_user: dict = Depends(get_admin_user)):
 
 @router.post("/users/{user_id}/block")
 def block_user(user_id: str, admin_user: dict = Depends(get_admin_user)):
-    # Estrutura preparada para expansão (bloqueio fictício implementado)
-    return {"status": "success", "message": f"Usuário {user_id} teria acesso revogado nesta versão."}
+    from app.main import store
+    if user_id == admin_user.get("id"):
+         raise HTTPException(status_code=400, detail="Não pode bloquear o próprio usuário")
+    
+    store.update_user_role(user_id, "blocked")
+    return {"status": "success", "message": f"Usuário {user_id} bloqueado com sucesso."}
+
+@router.put("/users/{user_id}/role")
+def update_user_role(user_id: str, req: RoleUpdateReq, admin_user: dict = Depends(get_admin_user)):
+    from app.main import store
+    if user_id == admin_user.get("id") and req.role != "admin":
+         raise HTTPException(status_code=400, detail="Não pode remover seus próprios privilégios")
+         
+    if req.role not in ["admin", "student", "blocked"]:
+         raise HTTPException(status_code=400, detail="Papel inválido")
+         
+    store.update_user_role(user_id, req.role)
+    return {"status": "success", "message": f"Papel de {user_id} atualizado para {req.role}"}

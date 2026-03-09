@@ -746,6 +746,12 @@ class Store:
             row = con.execute("SELECT * FROM users WHERE id=?", (user_id,)).fetchone()
             return dict(row) if row else None
 
+    # NOVO: Moderação (Fase 2)
+    def update_user_role(self, user_id: str, new_role: str):
+        with sqlite3.connect(self.path) as con:
+            con.execute("UPDATE users SET role=? WHERE id=?", (new_role, user_id))
+            return True
+
     # NOVO MÉTODOS EM store.py PARA O ADMIN:
     def get_all_users_basic_info(self):
         with sqlite3.connect(self.path) as con:
