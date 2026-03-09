@@ -759,3 +759,28 @@ class Store:
             total_users = con.execute("SELECT COUNT(*) FROM users").fetchone()[0]
             total_lessons = con.execute("SELECT COUNT(*) FROM user_progress WHERE status='completed'").fetchone()[0]
         return {"total_users": total_users, "completed_lessons": total_lessons}
+
+    def get_admin_recent_activity(self, limit: int = 15):
+        with sqlite3.connect(self.path) as con:
+            con.row_factory = sqlite3.Row
+            # Fetch recent lesson activities from user_progress
+            rows = con.execute("""
+            SELECT 'lesson' as type, up.lesson_id as item_id, up.user_id, u.name as user_name, u.email as user_email, up.status, up.started_at, up.completed_at
+            FROM user_progress up
+            LEFT JOIN users u ON up.user_id = u.id
+            ORDER BY COALESCE(up.completed_at, up.started_at) DESC
+            LIMIT ?
+            """, (limit,)).fetchall()
+        return [dict(r) for r in rows]
+
+    def get_admin_lessons_progress(self, limit: int = 50):
+        with sqlite3.connect(self.path) as con:
+            con.row_factory = sqlite3.Row
+            rows = con.execute("""
+            SELECT up.lesson_id, up.user_id, u.name as user_name, up.target_language, up.level, up.status, up.score, up.attempts, up.started_at, up.completed_at 
+            FROM user_progress up
+            LEFT JOIN users u ON up.user_id = u.id
+            ORDER BY up.started_at DESC
+            LIMIT ?
+            """, (limit,)).fetchall()
+        return [dict(r) for r in rows]
