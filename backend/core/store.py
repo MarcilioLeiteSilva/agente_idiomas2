@@ -65,8 +65,17 @@ class Store:
               email TEXT UNIQUE NOT NULL,
               password_hash TEXT NOT NULL,
               name TEXT,
+              role TEXT DEFAULT 'student',
               created_at TEXT NOT NULL
             )""")
+
+            # Migração passiva para adicionar coluna role
+            try:
+                columns = [info[1] for info in con.execute("PRAGMA table_info(users)")]
+                if "role" not in columns:
+                    con.execute("ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'student'")
+            except Exception as e:
+                print(f"Erro na migração de users (add role): {e}")
 
             # ✅ NOVO: perfil do aluno (Fase 1 - Passo 1)
             # 🔄 UPDATE (Fase 1 - Passo 2): Adicionado native_language
@@ -736,3 +745,17 @@ class Store:
             con.row_factory = sqlite3.Row
             row = con.execute("SELECT * FROM users WHERE id=?", (user_id,)).fetchone()
             return dict(row) if row else None
+
+    # NOVO MÉTODOS EM store.py PARA O ADMIN:
+    def get_all_users_basic_info(self):
+        with sqlite3.connect(self.path) as con:
+            con.row_factory = sqlite3.Row
+            rows = con.execute("SELECT id, email, name, role, created_at FROM users ORDER BY created_at DESC").fetchall()
+        return [dict(r) for r in rows]
+
+    def get_admin_dashboard_stats(self):
+        with sqlite3.connect(self.path) as con:
+            con.row_factory = sqlite3.Row
+            total_users = con.execute("SELECT COUNT(*) FROM users").fetchone()[0]
+            total_lessons = con.execute("SELECT COUNT(*) FROM user_progress WHERE status='completed'").fetchone()[0]
+        return {"total_users": total_users, "completed_lessons": total_lessons}
