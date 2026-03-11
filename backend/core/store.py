@@ -69,13 +69,9 @@ class Store:
               created_at TEXT NOT NULL
             )""")
 
-            # Migração passiva para adicionar coluna role
-            try:
-                columns = [info[1] for info in con.execute("PRAGMA table_info(users)")]
-                if "role" not in columns:
-                    con.execute("ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'student'")
-            except Exception as e:
-                print(f"Erro na migração de users (add role): {e}")
+
+            # Migração passiva removida para Postgres compatibility
+
 
             # ✅ NOVO: perfil do aluno (Fase 1 - Passo 1)
             # 🔄 UPDATE (Fase 1 - Passo 2): Adicionado native_language
@@ -91,13 +87,9 @@ class Store:
               updated_at TEXT NOT NULL
             )""")
             
-            # Migração automática Fase 1 Passo 2: Adicionar native_language se não existir
-            try:
-                columns = [info[1] for info in con.execute("PRAGMA table_info(user_profile)")]
-                if "native_language" not in columns:
-                    con.execute("ALTER TABLE user_profile ADD COLUMN native_language TEXT DEFAULT 'pt'")
-            except Exception as e:
-                print(f"Erro na migração de user_profile: {e}")
+
+            # Migração automática removida para Postgres compatibility
+
 
             # ✅ NOVO: Progresso do aluno (Fase 1 - Passo 3)
             con.execute("""
@@ -199,12 +191,9 @@ class Store:
             )""")
             
             # ✅ NOVO: Meta-dados nas mensagens (Fase 1 - Passo 9)
-            try:
-                columns = [info[1] for info in con.execute("PRAGMA table_info(messages)")]
-                if "meta" not in columns:
-                    con.execute("ALTER TABLE messages ADD COLUMN meta TEXT DEFAULT NULL")
-            except Exception as e:
-                print(f"Erro na migração de messages: {e}")
+
+            # Migração de meta-dados removida para Postgres compatibility
+
             
     def _exists(self, session_id: str) -> bool:
         with sqlite3.connect(self.path) as con:
