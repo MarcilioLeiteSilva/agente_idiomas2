@@ -1,4 +1,4 @@
-import sqlite3
+from db.postgres_adapter import sqlite_mock as sqlite3
 from datetime import datetime
 from pathlib import Path
 

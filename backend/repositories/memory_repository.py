@@ -1,4 +1,4 @@
-import sqlite3
+from db.postgres_adapter import sqlite_mock as sqlite3
 import json
 from datetime import datetime
 from core.config import config

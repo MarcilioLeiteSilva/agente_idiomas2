@@ -7,3 +7,4 @@ python-multipart
 passlib[bcrypt,argon2]
 python-jose[cryptography]
 argon2-cffi
+psycopg2-binary

@@ -1,4 +1,5 @@
-import sqlite3
+import os
+from .postgres_adapter import sqlite_mock as sqlite3
 from core.config import config
 
 class DatabaseSession:
