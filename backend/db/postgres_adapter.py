@@ -1,7 +1,7 @@
 import os
 import psycopg2
 from psycopg2.pool import SimpleConnectionPool
-from psycopg2.extras import RealDictCursor
+from psycopg2.extras import DictCursor
 import json
 
 _pool = None
@@ -54,7 +54,7 @@ class DBConnectionWrapper:
         # In SQLite: SELECT 1 FROM sessions WHERE session_id=?
         # In Postgres: SELECT 1 FROM sessions WHERE session_id=%s
         
-        cf = RealDictCursor if self.row_factory else None
+        cf = DictCursor if self.row_factory else None
         
         cur = self._conn.cursor(cursor_factory=cf)
         
@@ -73,7 +73,7 @@ class DBConnectionWrapper:
 
     def executemany(self, query, params_seq):
         q = query.replace("?", "%s")
-        cf = RealDictCursor if self.row_factory else None
+        cf = DictCursor if self.row_factory else None
         cur = self._conn.cursor(cursor_factory=cf)
         
         # json serialization

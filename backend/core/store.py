@@ -24,8 +24,15 @@ class Store:
               session_id TEXT NOT NULL,
               role TEXT NOT NULL,
               content TEXT NOT NULL,
+              meta TEXT DEFAULT NULL,
               created_at TEXT NOT NULL
             )""")
+
+            # Garantir coluna meta no Postgres (migração passiva compatível)
+            try:
+                con.execute("ALTER TABLE messages ADD COLUMN IF NOT EXISTS meta TEXT DEFAULT NULL")
+            except Exception:
+                pass
 
             # ✅ NOVO: resumo persistido da conversa
             con.execute("""
