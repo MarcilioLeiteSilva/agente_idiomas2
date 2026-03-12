@@ -1,24 +1,14 @@
-from db.postgres_adapter import sqlite_mock as sqlite3
+from db.postgres_adapter import PostgresShim as pg
 import os
 import sys
 
 def make_admin(email_or_id: str):
-    # Try normal docker path, then local mount path
-    db_path = os.getenv("DATABASE_URL", os.getenv("DB_PATH", "/app/data/app.db"))
+    # O adaptador Postgres ignora o path pois usa DATABASE_URL do env
+    db_path = None
     
-    if not os.path.exists(db_path):
-        # Fallback for local testing if running outside container
-        db_path = "../data/app.db" if os.path.exists("../data/app.db") else "data/app.db"
-    
-    # Check if the DB exists first
-    if not os.path.exists(db_path):
-        print(f"Erro: Banco de dados não encontrado em {db_path}")
-        print("Certifique-se de executar isso dentro do container do backend ou na raiz do projeto.")
-        sys.exit(1)
-        
     try:
-        with sqlite3.connect(db_path) as con:
-            con.row_factory = sqlite3.Row
+        with pg.connect(db_path) as con:
+            con.row_factory = pg.Row
             cursor = con.cursor()
             
             # Find the user first

@@ -1,17 +1,17 @@
-from db.postgres_adapter import sqlite_mock as sqlite3
+from db.postgres_adapter import PostgresShim as pg
 import json
 from datetime import datetime
 from core.config import config
 
 class MemoryRepository:
-    def __init__(self, db_path=config.DB_PATH):
+    def __init__(self, db_path=None):
         self.db_path = db_path
 
     def add_memory_event(self, user_id, source_type, source_id, interaction_id, 
                            event_type, category, topic_key, severity, evidence, 
                            subtopic_key=None, confidence=1.0, metadata_json=None):
         now = datetime.now().isoformat()
-        with sqlite3.connect(self.db_path) as con:
+        with pg.connect(self.db_path) as con:
             con.execute("""
             INSERT INTO memory_events 
             (user_id, source_type, source_id, interaction_id, event_type, category, topic_key, 
@@ -21,8 +21,8 @@ class MemoryRepository:
                   subtopic_key, severity, confidence, evidence, metadata_json, now))
 
     def get_user_memory_items(self, user_id):
-        with sqlite3.connect(self.db_path) as con:
-            con.row_factory = sqlite3.Row
+        with pg.connect(self.db_path) as con:
+            con.row_factory = pg.Row
             rows = con.execute("SELECT * FROM memory_items WHERE user_id=?", (user_id,)).fetchall()
         return [dict(r) for r in rows]
 
@@ -50,7 +50,7 @@ class MemoryRepository:
             placeholders = ", ".join(["?" for _ in fields])
             values = list(fields.values())
             
-            with sqlite3.connect(self.db_path) as con:
+            with pg.connect(self.db_path) as con:
                 con.execute(f"INSERT INTO memory_items ({keys}) VALUES ({placeholders})", values)
         else:
             # Update only provided fields
@@ -65,5 +65,5 @@ class MemoryRepository:
             values.append(user_id)
             values.append(topic_key)
             
-            with sqlite3.connect(self.db_path) as con:
+            with pg.connect(self.db_path) as con:
                 con.execute(f"UPDATE memory_items SET {set_clause} WHERE user_id=? AND topic_key=?", values)

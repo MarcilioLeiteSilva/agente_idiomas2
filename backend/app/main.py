@@ -58,7 +58,7 @@ WEB_DIR = config.WEB_DIR
 from app.api.routes.memory import router as memory_router
 app.include_router(memory_router)
 
-store = Store(config.DB_PATH)
+store = Store()
 
 # Include Admin routes
 from app.api.routes.admin.router import router as admin_router

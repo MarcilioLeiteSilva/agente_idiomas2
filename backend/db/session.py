@@ -1,14 +1,15 @@
 import os
-from .postgres_adapter import sqlite_mock as sqlite3
+from .postgres_adapter import PostgresShim as pg
 from core.config import config
 
 class DatabaseSession:
-    def __init__(self, db_path=config.DB_PATH):
+    def __init__(self, db_path=None):
         self.db_path = db_path
 
     def get_connection(self):
-        con = sqlite3.connect(self.db_path)
-        con.row_factory = sqlite3.Row
+        # O adaptador Postgres ignora o path pois usa DATABASE_URL do env
+        con = pg.connect(self.db_path)
+        con.row_factory = pg.Row
         return con
 
 db = DatabaseSession()

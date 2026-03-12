@@ -21,11 +21,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # This includes app/, core/, services/, repositories/, etc.
 COPY backend/ .
 
-# Ensure data directory exists for SQLite
-RUN mkdir -p /app/data
-
-# Default database URL (Easypanel will override this if configured)
-ENV DATABASE_URL=sqlite:////app/data/app.db
+# Expose FastAPI port
+EXPOSE 8000
 
 # Expose FastAPI port
 EXPOSE 8000
